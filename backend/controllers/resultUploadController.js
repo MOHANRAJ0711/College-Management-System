@@ -1,8 +1,11 @@
 const pdfParse = require('pdf-parse');
 const XLSX = require('xlsx');
 const ResultBatch = require('../models/ResultBatch');
+<<<<<<< HEAD
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 const handleError = require('../utils/handleError');
 
 function parseResultLines(text) {
@@ -18,16 +21,26 @@ function parseResultLines(text) {
   for (let i = 0; i < lines.length; i++) {
     if (headerPatterns.some((p) => p.test(lines[i]))) {
       headerIdx = i;
+<<<<<<< HEAD
       headers = lines[i].split(/\s{2,}|\t+/).map((h) => h.trim());
+=======
+      headers = lines[i].split(/\s{2,}|\t+/).map((h) => h.trim().toLowerCase());
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       break;
     }
   }
 
   if (headerIdx === -1) {
+<<<<<<< HEAD
     // Basic fallback parsing for single results
     for (const line of lines) {
       const match = line.match(
         /(\d{10,}[A-Z]*\d*)\s+([A-Za-z\s.]+?)\s+([\d.]+)\s*(?:\/\s*[\d.]+)?\s*([A-Z+]*)?$/
+=======
+    for (const line of lines) {
+      const match = line.match(
+        /(\d{2,}[A-Z]*\d*)\s+([A-Za-z\s.]+?)\s+([\d.]+)\s*(?:\/\s*[\d.]+)?\s*([A-Z+]*)?$/
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       );
       if (match) {
         students.push({
@@ -42,6 +55,7 @@ function parseResultLines(text) {
   }
 
   const findCol = (patterns) =>
+<<<<<<< HEAD
     headers.findIndex((h) => patterns.some((p) => p.test(h.toLowerCase())));
 
   const rollCol = findCol([/roll/i, /reg/i, /enrol/i, /id/i]);
@@ -54,6 +68,15 @@ function parseResultLines(text) {
       subjectCols.push({ code: h, index: idx });
     }
   });
+=======
+    headers.findIndex((h) => patterns.some((p) => p.test(h)));
+
+  const rollCol = findCol([/roll/i, /reg/i, /enrol/i, /id/i]);
+  const nameCol = findCol([/name/i, /student/i]);
+  const marksCol = findCol([/marks/i, /total/i, /score/i, /obtained/i]);
+  const gradeCol = findCol([/grade/i, /gpa/i, /cgpa/i]);
+  const cgpaCol = findCol([/cgpa/i, /gpa/i]);
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
   const dataLines = lines.slice(headerIdx + 1);
   for (const line of dataLines) {
@@ -62,6 +85,7 @@ function parseResultLines(text) {
 
     const roll = rollCol >= 0 ? parts[rollCol] : parts[0];
     const name = nameCol >= 0 ? parts[nameCol] : parts[1];
+<<<<<<< HEAD
 
     if (!roll || !name || roll.length < 5) continue;
     if (/^(total|average|class|subject|page|date|provisional|anna|office|instruction)/i.test(roll)) continue;
@@ -94,6 +118,24 @@ function parseResultLines(text) {
     }
 
     students.push(student);
+=======
+    const rawMarks = marksCol >= 0 ? parts[marksCol] : parts[2];
+    const rawGrade = gradeCol >= 0 ? parts[gradeCol] : '';
+    const rawCgpa = cgpaCol >= 0 && cgpaCol !== gradeCol ? parts[cgpaCol] : '';
+
+    if (!roll || !name) continue;
+    if (/^(total|average|class|subject|page|date)/i.test(roll)) continue;
+
+    const marksNum = parseFloat(String(rawMarks).replace(/[^\d.]/g, ''));
+
+    students.push({
+      rollNumber: roll,
+      name,
+      marks: Number.isFinite(marksNum) ? marksNum : null,
+      grade: rawGrade || null,
+      cgpa: parseFloat(rawCgpa) || null,
+    });
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   }
 
   return students;
@@ -124,6 +166,7 @@ function computeCGPA(marks, maxMarks) {
 }
 
 function computeStats(students) {
+<<<<<<< HEAD
   const total = students.length;
   if (total === 0) {
     return {
@@ -175,6 +218,40 @@ function computeStats(students) {
     passPercentage: Math.round((passCount / total) * 10000) / 100,
     gradeDistribution,
     subjectStats
+=======
+  const withMarks = students.filter((s) => s.marks != null);
+  const total = withMarks.length;
+  if (total === 0) {
+    return {
+      totalStudents: students.length, withMarks: 0, average: 0,
+      highest: 0, lowest: 0, passCount: 0, failCount: 0,
+      passPercentage: 0, gradeDistribution: {},
+    };
+  }
+
+  const marksList = withMarks.map((s) => s.marks);
+  const sum = marksList.reduce((a, b) => a + b, 0);
+  const average = sum / total;
+  const highest = Math.max(...marksList);
+  const lowest = Math.min(...marksList);
+
+  const passThreshold = highest > 10 ? highest * 0.4 : 4.0;
+  const passCount = withMarks.filter((s) => s.marks >= passThreshold).length;
+  const failCount = total - passCount;
+
+  const gradeDistribution = {};
+  students.forEach((s) => {
+    const g = s.grade || assignGrade(s.marks, highest);
+    gradeDistribution[g] = (gradeDistribution[g] || 0) + 1;
+  });
+
+  return {
+    totalStudents: students.length, withMarks: total,
+    average: Math.round(average * 100) / 100, highest, lowest,
+    passCount, failCount,
+    passPercentage: Math.round((passCount / total) * 10000) / 100,
+    gradeDistribution,
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   };
 }
 
@@ -221,7 +298,11 @@ const uploadResultPDF = async (req, res) => {
 
 const saveResultBatch = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { title, description, department, semester, subject, academicYear, students, analysis, fileName, pdfPages, notifyStudents } = req.body;
+=======
+    const { title, description, department, semester, subject, academicYear, students, analysis, fileName, pdfPages } = req.body;
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     if (!title || !Array.isArray(students) || students.length === 0) {
       return res.status(400).json({ message: 'title and students array are required' });
     }
@@ -241,6 +322,7 @@ const saveResultBatch = async (req, res) => {
       pdfPages,
     });
 
+<<<<<<< HEAD
     // Notify Students if requested
     if (notifyStudents) {
       const rollNumbers = students.map(s => s.rollNumber).filter(Boolean);
@@ -262,6 +344,8 @@ const saveResultBatch = async (req, res) => {
       }
     }
 
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     const populated = await ResultBatch.findById(batch._id).populate('uploadedBy', 'name email role');
     return res.status(201).json(populated);
   } catch (err) {
@@ -336,6 +420,7 @@ const downloadResultExcel = async (req, res) => {
       list = students.filter((s) => s.status === 'Pass');
     }
 
+<<<<<<< HEAD
     // Determine subject columns
     const allSubjectCodes = new Set();
     list.forEach(s => {
@@ -385,6 +470,43 @@ const downloadResultExcel = async (req, res) => {
     ];
     
     const ws2 = XLSX.utils.json_to_sheet(statsRows);
+=======
+    const rows = list.map((s, i) => ({
+      'S.No': i + 1,
+      'Roll Number': s.rollNumber || '',
+      'Student Name': s.name || '',
+      'Marks Obtained': s.marks ?? '',
+      'Grade': s.grade || '',
+      'CGPA': s.cgpa ?? '',
+      'Status': s.status || '',
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      { wch: 6 }, { wch: 16 }, { wch: 30 }, { wch: 16 },
+      { wch: 8 }, { wch: 8 }, { wch: 8 },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, filterType === 'arrear' ? 'Arrear Students' : 'Results');
+
+    const wm = list.filter((s) => s.marks != null);
+    const statsRows = [
+      { Metric: 'Total Students', Value: list.length },
+      { Metric: 'Filter', Value: filterType === 'arrear' ? 'Arrear/Fail Only' : filterType === 'pass' ? 'Pass Only' : 'All Students' },
+      { Metric: 'Average Marks', Value: wm.length ? (wm.reduce((a, b) => a + b.marks, 0) / wm.length).toFixed(2) : 'N/A' },
+      { Metric: 'Highest Marks', Value: wm.length ? Math.max(...wm.map((s) => s.marks)) : 'N/A' },
+      { Metric: 'Lowest Marks', Value: wm.length ? Math.min(...wm.map((s) => s.marks)) : 'N/A' },
+      { Metric: 'Pass Count', Value: list.filter((s) => s.status === 'Pass').length },
+      { Metric: 'Fail Count', Value: list.filter((s) => s.status === 'Fail').length },
+      { Metric: 'Pass Percentage', Value: (() => {
+        const total = wm.length;
+        const pass = list.filter((s) => s.status === 'Pass').length;
+        return total ? ((pass / total) * 100).toFixed(2) + '%' : 'N/A';
+      })() },
+    ];
+    const ws2 = XLSX.utils.json_to_sheet(statsRows);
+    ws2['!cols'] = [{ wch: 20 }, { wch: 20 }];
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     XLSX.utils.book_append_sheet(wb, ws2, 'Analysis');
 
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });

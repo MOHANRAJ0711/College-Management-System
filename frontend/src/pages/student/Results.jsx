@@ -15,6 +15,7 @@ function statusBadge(status) {
 
 function normalize(res) {
   const d = res?.data ?? res;
+<<<<<<< HEAD
   
   // Handle old format (array) or new format (object)
   const examResults = Array.isArray(d) ? d : (Array.isArray(d.examResults) ? d.examResults : []);
@@ -68,6 +69,32 @@ function normalize(res) {
   return {
     cgpa: Number(d.cgpa || 0),
     semesters: [...standardSemesters, ...batches]
+=======
+  const semesters = Array.isArray(d.semesters) ? d.semesters : [];
+  return {
+    cgpa: Number(d.cgpa ?? d.CGPA ?? 0),
+    semesters: semesters.map((sem, i) => ({
+      id: sem.id ?? sem.semester ?? i,
+      label: sem.label ?? sem.semesterName ?? `Semester ${sem.semester ?? i + 1}`,
+      semester: sem.semester ?? i + 1,
+      sgpa: Number(sem.sgpa ?? sem.SGPA ?? 0),
+      status: sem.status ?? sem.resultStatus ?? 'Pass',
+      subjects: Array.isArray(sem.subjects)
+        ? sem.subjects.map((s, j) => ({
+            id: s.id ?? j,
+            subject: s.subject ?? s.name ?? s.courseName ?? 'Subject',
+            internal: Number(s.internalMarks ?? s.internal ?? 0),
+            semesterMarks: Number(s.semesterMarks ?? s.external ?? s.semester ?? 0),
+            total: Number(
+              s.total ??
+                (Number(s.internalMarks ?? s.internal ?? 0) +
+                  Number(s.semesterMarks ?? s.external ?? 0))
+            ),
+            grade: s.grade ?? s.gradeLetter ?? '—',
+          }))
+        : [],
+    })),
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   };
 }
 
@@ -187,6 +214,7 @@ export default function Results() {
                         <thead className="bg-slate-50">
                           <tr>
                             <th className="px-3 py-2 font-semibold text-slate-700">Subject</th>
+<<<<<<< HEAD
                             {sem.type === 'batch' ? (
                               <th className="px-3 py-2 font-semibold text-slate-700">Grade</th>
                             ) : (
@@ -197,16 +225,27 @@ export default function Results() {
                                 <th className="px-3 py-2 font-semibold text-slate-700">Grade</th>
                               </>
                             )}
+=======
+                            <th className="px-3 py-2 font-semibold text-slate-700">Internal</th>
+                            <th className="px-3 py-2 font-semibold text-slate-700">Semester</th>
+                            <th className="px-3 py-2 font-semibold text-slate-700">Total</th>
+                            <th className="px-3 py-2 font-semibold text-slate-700">Grade</th>
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {(sem.subjects?.length ?? 0) === 0 ? (
                             <tr>
+<<<<<<< HEAD
                               <td colSpan={sem.type === 'batch' ? 2 : 5} className="px-3 py-8 text-center text-slate-500">
+=======
+                              <td colSpan={5} className="px-3 py-8 text-center text-slate-500">
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                                 No subject rows.
                               </td>
                             </tr>
                           ) : (
+<<<<<<< HEAD
                             sem.subjects.map((s, idx) => (
                               <tr key={s.id || s.code || idx} className="hover:bg-slate-50/80">
                                 <td className="px-3 py-2.5 font-medium text-slate-900">{sem.type === 'batch' ? s.code : s.subject}</td>
@@ -232,6 +271,23 @@ export default function Results() {
                                     </td>
                                   </>
                                 )}
+=======
+                            sem.subjects.map((s) => (
+                              <tr key={s.id} className="hover:bg-slate-50/80">
+                                <td className="px-3 py-2.5 font-medium text-slate-900">{s.subject}</td>
+                                <td className="px-3 py-2.5 tabular-nums text-slate-700">{s.internal}</td>
+                                <td className="px-3 py-2.5 tabular-nums text-slate-700">
+                                  {s.semesterMarks}
+                                </td>
+                                <td className="px-3 py-2.5 tabular-nums font-semibold text-slate-900">
+                                  {s.total}
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  <span className="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-800">
+                                    {s.grade}
+                                  </span>
+                                </td>
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                               </tr>
                             ))
                           )}

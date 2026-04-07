@@ -145,7 +145,11 @@ export default function DocumentUpload() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+<<<<<<< HEAD
                   <a href={d.fileUrl} target="_blank" rel="noreferrer"
+=======
+                  <a href={`http://localhost:5000${d.fileUrl}`} target="_blank" rel="noreferrer"
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                     className="rounded-lg p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
                     <FiDownload className="h-4 w-4" />
                   </a>

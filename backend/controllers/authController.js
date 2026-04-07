@@ -1,7 +1,10 @@
 const User = require('../models/User');
 const Student = require('../models/Student');
 const Faculty = require('../models/Faculty');
+<<<<<<< HEAD
 const FaceDescriptor = require('../models/FaceDescriptor');
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 const generateToken = require('../utils/generateToken');
 
 const populateUserProfile = async (userDoc) => {
@@ -285,6 +288,7 @@ const changePassword = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 const updateProfileImage = async (req, res) => {
   try {
     if (!req.file) {
@@ -341,11 +345,16 @@ const updateProfileImage = async (req, res) => {
   }
 };
 
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
+<<<<<<< HEAD
   updateProfileImage,
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   changePassword,
 };

@@ -31,12 +31,15 @@ app.use('/api/library', require('./routes/library'));
 app.use('/api/placements', require('./routes/placements'));
 app.use('/api/certificates', require('./routes/certificates'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+<<<<<<< HEAD
 app.use('/api/hostel', require('./routes/hostel'));
 app.use('/api/transport', require('./routes/transport'));
 app.use('/api/leave', require('./routes/leave'));
 app.use('/api/payroll', require('./routes/payroll'));
 app.use('/api/lms', require('./routes/lms'));
 app.use('/api/lifecycle', require('./routes/lifecycle'));
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 app.use('/api/result-upload', require('./routes/resultUpload'));
 app.use('/api/face-attendance', require('./routes/faceAttendance'));
 app.use('/api/complaints', require('./routes/complaints'));

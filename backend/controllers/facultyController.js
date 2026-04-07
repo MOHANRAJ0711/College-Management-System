@@ -70,6 +70,7 @@ const buildFacultyFilter = async (query) => {
  */
 const getFaculties = async (req, res) => {
   try {
+<<<<<<< HEAD
     const query = { ...req.query };
 
     // If faculty role is fetching, filter by their department (HOD access)
@@ -84,6 +85,9 @@ const getFaculties = async (req, res) => {
     }
 
     const filter = await buildFacultyFilter(query);
+=======
+    const filter = await buildFacultyFilter(req.query);
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     const faculties = await Faculty.find(filter)
       .populate(facultyPopulate)
       .sort({ createdAt: -1 })

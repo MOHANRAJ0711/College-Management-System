@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const Course = require('../models/Course');
+<<<<<<< HEAD
 const Faculty = require('../models/Faculty');
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
 const handleError = (res, err, defaultMsg = 'Server error') => {
   if (err.name === 'ValidationError') {
@@ -22,6 +25,7 @@ const coursePopulate = [{ path: 'department', select: 'name code' }];
  */
 const getCourses = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { semester, type, search, includeInactive } = req.query;
     let { department } = req.query;
     const filter = {};
@@ -36,6 +40,11 @@ const getCourses = async (req, res) => {
       }
     }
 
+=======
+    const { department, semester, type, search, includeInactive } = req.query;
+    const filter = {};
+
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     if (department && mongoose.Types.ObjectId.isValid(department)) {
       filter.department = department;
     }

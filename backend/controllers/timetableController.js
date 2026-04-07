@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Timetable = require('../models/Timetable');
+<<<<<<< HEAD
 const Faculty = require('../models/Faculty');
 const Department = require('../models/Department');
 const handleError = require('../utils/handleError');
@@ -16,6 +17,10 @@ const verifyHodAccess = async (user, departmentId) => {
   return false;
 };
 
+=======
+const handleError = require('../utils/handleError');
+
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 const timetablePopulate = [
   { path: 'department', select: 'name code' },
   {
@@ -31,6 +36,7 @@ const timetablePopulate = [
 
 const createTimetable = async (req, res) => {
   try {
+<<<<<<< HEAD
     let { department } = req.body;
     
     if (!department && req.user && req.user.role === 'faculty') {
@@ -49,6 +55,8 @@ const createTimetable = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to modify this department' });
     }
 
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     const entry = await Timetable.create(req.body);
     const populated = await Timetable.findById(entry._id).populate(timetablePopulate);
     return res.status(201).json(populated);
@@ -59,6 +67,7 @@ const createTimetable = async (req, res) => {
 
 const getTimetable = async (req, res) => {
   try {
+<<<<<<< HEAD
     let { department, semester, section } = req.query;
 
     if (!department && req.user && req.user.role === 'faculty') {
@@ -68,6 +77,9 @@ const getTimetable = async (req, res) => {
       }
     }
 
+=======
+    const { department, semester, section } = req.query;
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     if (!department) {
       return res.status(400).json({ message: 'department query is required' });
     }
@@ -100,6 +112,7 @@ const updateTimetable = async (req, res) => {
       return res.status(400).json({ message: 'Invalid timetable id' });
     }
 
+<<<<<<< HEAD
     const existing = await Timetable.findById(id);
     if (!existing) {
       return res.status(404).json({ message: 'Timetable entry not found' });
@@ -117,11 +130,20 @@ const updateTimetable = async (req, res) => {
       }
     }
 
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     const entry = await Timetable.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     }).populate(timetablePopulate);
 
+<<<<<<< HEAD
+=======
+    if (!entry) {
+      return res.status(404).json({ message: 'Timetable entry not found' });
+    }
+
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     return res.status(200).json(entry);
   } catch (err) {
     return handleError(res, err, 'Could not update timetable');
@@ -135,6 +157,7 @@ const deleteTimetable = async (req, res) => {
       return res.status(400).json({ message: 'Invalid timetable id' });
     }
 
+<<<<<<< HEAD
     const existing = await Timetable.findById(id);
     if (!existing) {
       return res.status(404).json({ message: 'Timetable entry not found' });
@@ -148,6 +171,14 @@ const deleteTimetable = async (req, res) => {
     await Timetable.findByIdAndDelete(id);
 
     return res.status(200).json({ message: 'Timetable entry removed', id: existing._id });
+=======
+    const entry = await Timetable.findByIdAndDelete(id);
+    if (!entry) {
+      return res.status(404).json({ message: 'Timetable entry not found' });
+    }
+
+    return res.status(200).json({ message: 'Timetable entry removed', id: entry._id });
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   } catch (err) {
     return handleError(res, err, 'Could not delete timetable');
   }

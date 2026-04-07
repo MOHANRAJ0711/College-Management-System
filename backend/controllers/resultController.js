@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const Result = require('../models/Result');
+<<<<<<< HEAD
 const ResultBatch = require('../models/ResultBatch');
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 const Exam = require('../models/Exam');
 const Student = require('../models/Student');
 const Faculty = require('../models/Faculty');
@@ -150,8 +153,12 @@ const getStudentResults = async (req, res) => {
       return res.status(404).json({ message: 'Student profile not found' });
     }
 
+<<<<<<< HEAD
     // 1. Fetch individual exam results
     const examResults = await Result.find({ student: studentDoc._id, isPublished: true })
+=======
+    const results = await Result.find({ student: studentDoc._id, isPublished: true })
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       .populate([
         { path: 'exam', select: 'name type date totalMarks passingMarks' },
         { path: 'course', select: 'name code' },
@@ -159,6 +166,7 @@ const getStudentResults = async (req, res) => {
       ])
       .sort({ createdAt: -1 });
 
+<<<<<<< HEAD
     // 2. Fetch results from parsed batches (using roll number)
     const rollNumber = studentDoc.rollNumber;
     const batchResults = await ResultBatch.find({
@@ -185,6 +193,9 @@ const getStudentResults = async (req, res) => {
       examResults,
       batchResults: filteredBatches
     });
+=======
+    return res.status(200).json(results);
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   } catch (err) {
     return handleError(res, err, 'Could not fetch your results');
   }

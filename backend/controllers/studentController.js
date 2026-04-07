@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Student = require('../models/Student');
+<<<<<<< HEAD
 const Faculty = require('../models/Faculty');
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 const Attendance = require('../models/Attendance');
 const Exam = require('../models/Exam');
 const Fee = require('../models/Fee');
@@ -33,7 +36,11 @@ const studentPopulate = [
   { path: 'course', select: 'name code semester credits type department' },
 ];
 
+<<<<<<< HEAD
 const buildStudentFilter = async (query, user) => {
+=======
+const buildStudentFilter = async (query) => {
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   const filter = {};
   const {
     department,
@@ -79,6 +86,7 @@ const buildStudentFilter = async (query, user) => {
     }
   }
 
+<<<<<<< HEAD
   if (user && user.role === 'faculty') {
     const faculty = await Faculty.findOne({ user: user._id });
     if (faculty && faculty.designation === 'HOD' && faculty.department) {
@@ -86,6 +94,8 @@ const buildStudentFilter = async (query, user) => {
     }
   }
 
+=======
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   return filter;
 };
 
@@ -94,7 +104,11 @@ const buildStudentFilter = async (query, user) => {
  */
 const getStudents = async (req, res) => {
   try {
+<<<<<<< HEAD
     const filter = await buildStudentFilter(req.query, req.user);
+=======
+    const filter = await buildStudentFilter(req.query);
+>>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     const students = await Student.find(filter)
       .populate(studentPopulate)
       .sort({ createdAt: -1 })
