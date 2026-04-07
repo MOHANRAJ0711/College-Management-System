@@ -1,0 +1,9 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+*.log
+.vite/
+Result_Analysis_IT.xlsx
+convert_results.py
