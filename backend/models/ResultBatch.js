@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-<<<<<<< HEAD
+// Schema for subject-wise grade entries (Anna University format)
 const studentSubjectSchema = new mongoose.Schema({
   code: { type: String, required: true },
   name: { type: String },
@@ -9,23 +9,15 @@ const studentSubjectSchema = new mongoose.Schema({
   status: { type: String, enum: ['Pass', 'Fail', 'N/A'], default: 'N/A' },
 }, { _id: false });
 
+// Schema for a single student's result row in the batch
 const studentResultSchema = new mongoose.Schema({
   rollNumber: { type: String },
   name: { type: String },
-  marks: { type: Number, default: null }, // for single-subject files
+  marks: { type: Number, default: null },  // single-subject total marks
   grade: { type: String },
   cgpa: { type: Number, default: null },
   status: { type: String, enum: ['Pass', 'Fail', 'N/A'], default: 'N/A' },
-  subjects: [studentSubjectSchema], // for multi-subject files
-=======
-const studentResultSchema = new mongoose.Schema({
-  rollNumber: { type: String },
-  name: { type: String },
-  marks: { type: Number, default: null },
-  grade: { type: String },
-  cgpa: { type: Number, default: null },
-  status: { type: String, enum: ['Pass', 'Fail', 'N/A'], default: 'N/A' },
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
+  subjects: [studentSubjectSchema],         // multi-subject (Anna University) format
 }, { _id: false });
 
 const resultBatchSchema = new mongoose.Schema(
@@ -50,15 +42,14 @@ const resultBatchSchema = new mongoose.Schema(
       failCount: { type: Number, default: 0 },
       passPercentage: { type: Number, default: 0 },
       gradeDistribution: { type: mongoose.Schema.Types.Mixed, default: {} },
-<<<<<<< HEAD
-      subjectStats: [{
-        code: String,
-        passPercentage: Number,
-        passCount: Number,
-        failCount: Number,
-      }],
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
+      subjectStats: [
+        {
+          code: String,
+          passPercentage: Number,
+          passCount: Number,
+          failCount: Number,
+        },
+      ],
     },
     pdfPages: { type: Number },
   },

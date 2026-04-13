@@ -90,7 +90,6 @@ export function AuthProvider({ children }) {
 
   const updateProfile = useCallback(async (payload) => {
     const { data } = await api.put('/auth/profile', payload);
-<<<<<<< HEAD
     const nextUser = data?.user ?? data;
     setUser(nextUser);
     return nextUser;
@@ -103,10 +102,6 @@ export function AuthProvider({ children }) {
     const nextUser = data?.user ?? data;
     setUser(nextUser);
     return nextUser;
-=======
-    setUser(data);
-    return data;
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   }, []);
 
   const value = useMemo(
@@ -118,23 +113,16 @@ export function AuthProvider({ children }) {
       register,
       logout,
       updateProfile,
-<<<<<<< HEAD
       updateProfileImage,
       isAuthenticated: Boolean(token && user),
     }),
     [user, token, loading, login, register, logout, updateProfile, updateProfileImage]
-=======
-      isAuthenticated: Boolean(token && user),
-    }),
-    [user, token, loading, login, register, logout, updateProfile]
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Hook is intentionally co-located with AuthProvider for this module.
-// eslint-disable-next-line react-refresh/only-export-components -- useAuth must live with provider
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) {

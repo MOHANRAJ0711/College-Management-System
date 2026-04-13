@@ -33,7 +33,6 @@ const StudentNotifications = loadDashboard('StudentNotifications');
 const StudentPlacements = loadDashboard('StudentPlacements');
 const StudentLibrary = loadDashboard('StudentLibrary');
 const StudentCertificates = loadDashboard('StudentCertificates');
-<<<<<<< HEAD
 const StudentHostel = lazy(() => import('./pages/student/StudentHostel.jsx'));
 const StudentFaceRegister = lazy(() => import('./pages/student/FaceRegister.jsx'));
 const StudentComplaints = lazy(() => import('./pages/student/Complaints.jsx'));
@@ -45,13 +44,6 @@ const StudentServiceRequest = lazy(() => import('./pages/student/ServiceRequest.
 const StudentRequestStatus = lazy(() => import('./pages/student/RequestStatus.jsx'));
 const StudentScholarship = lazy(() => import('./pages/student/ScholarshipPortal.jsx'));
 const StudentEvents = lazy(() => import('./pages/student/CampusEvents.jsx'));
-=======
-const StudentFaceRegister = lazy(() => import('./pages/student/FaceRegister.jsx'));
-const StudentComplaints = lazy(() => import('./pages/student/Complaints.jsx'));
-const StudentDocUpload = lazy(() => import('./pages/student/DocumentUpload.jsx'));
-const StudentServiceRequest = lazy(() => import('./pages/student/ServiceRequest.jsx'));
-const StudentRequestStatus = lazy(() => import('./pages/student/RequestStatus.jsx'));
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
 // Faculty pages
 const FacultyDashboard = loadDashboard('FacultyDashboard');
@@ -64,12 +56,9 @@ const FacultyNotifications = loadDashboard('FacultyNotifications');
 const FacultyResultUpload = lazy(() => import('./pages/faculty/ResultUpload.jsx'));
 const FacultyFaceAttendance = lazy(() => import('./pages/faculty/FaceAttendance.jsx'));
 const FacultyAssignments = lazy(() => import('./pages/faculty/AssignmentManagement.jsx'));
-<<<<<<< HEAD
 const FacultyLeave = lazy(() => import('./pages/faculty/LeaveApplication.jsx'));
 const FacultyPayslips = lazy(() => import('./pages/faculty/MyPayslips.jsx'));
 const FacultyLMS = lazy(() => import('./pages/faculty/MaterialUpload.jsx'));
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
 // HOD pages
 const HODDashboard = lazy(() => import('./pages/hod/Dashboard.jsx'));
@@ -78,10 +67,7 @@ const HODDepartment = lazy(() => import('./pages/hod/DepartmentOverview.jsx'));
 const HODCourses = lazy(() => import('./pages/hod/CourseManagement.jsx'));
 const HODTimetable = lazy(() => import('./pages/hod/TimetableManagement.jsx'));
 const HODNotifications = lazy(() => import('./pages/hod/NotificationPanel.jsx'));
-<<<<<<< HEAD
 const HODLeaveApprovals = lazy(() => import('./pages/hod/LeaveApprovals.jsx'));
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
 // Admin pages
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard.jsx'));
@@ -101,15 +87,12 @@ const AdminPlacements = lazy(() => import('./pages/admin/PlacementManagement.jsx
 const AdminCertificates = lazy(() => import('./pages/admin/CertificateManagement.jsx'));
 const AdminReports = lazy(() => import('./pages/admin/Reports.jsx'));
 const AdminResultUpload = lazy(() => import('./pages/admin/ResultUpload.jsx'));
-<<<<<<< HEAD
 const AdminHostel = lazy(() => import('./pages/admin/HostelManagement.jsx'));
 const AdminTransport = lazy(() => import('./pages/admin/TransportManagement.jsx'));
 const AdminLeaveApprovals = lazy(() => import('./pages/hod/LeaveApprovals.jsx')); // Shared view
 const AdminPayroll = lazy(() => import('./pages/admin/PayrollManagement.jsx'));
 const AdminScholarship = lazy(() => import('./pages/admin/ScholarshipManagement.jsx'));
 const AdminEvents = lazy(() => import('./pages/admin/EventApprovals.jsx'));
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
 function DashboardFallback() {
   return (
@@ -146,23 +129,17 @@ export default function App() {
             <Route path="placements" element={<StudentPlacements />} />
             <Route path="library" element={<StudentLibrary />} />
             <Route path="certificates" element={<StudentCertificates />} />
-<<<<<<< HEAD
             <Route path="hostel" element={<StudentHostel />} />
             <Route path="transport" element={<StudentTransport />} />
             <Route path="materials" element={<StudentMaterials />} />
             <Route path="feedback" element={<StudentFeedback />} />
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             <Route path="face-register" element={<StudentFaceRegister />} />
             <Route path="complaints" element={<StudentComplaints />} />
             <Route path="documents" element={<StudentDocUpload />} />
             <Route path="service-request" element={<StudentServiceRequest />} />
             <Route path="request-status" element={<StudentRequestStatus />} />
-<<<<<<< HEAD
             <Route path="scholarship" element={<StudentScholarship />} />
             <Route path="events" element={<StudentEvents />} />
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
           </Route>
 
           {/* Faculty */}
@@ -178,12 +155,9 @@ export default function App() {
             <Route path="result-upload" element={<FacultyResultUpload />} />
             <Route path="face-attendance" element={<FacultyFaceAttendance />} />
             <Route path="assignments" element={<FacultyAssignments />} />
-<<<<<<< HEAD
             <Route path="leave-request" element={<FacultyLeave />} />
             <Route path="my-payslips" element={<FacultyPayslips />} />
             <Route path="lms-upload" element={<FacultyLMS />} />
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
           </Route>
 
           {/* HOD */}
@@ -195,10 +169,7 @@ export default function App() {
             <Route path="courses" element={<HODCourses />} />
             <Route path="timetable" element={<HODTimetable />} />
             <Route path="notifications" element={<HODNotifications />} />
-<<<<<<< HEAD
             <Route path="leave-approvals" element={<HODLeaveApprovals />} />
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
           </Route>
 
           {/* Admin */}
@@ -220,15 +191,12 @@ export default function App() {
             <Route path="placements" element={<AdminPlacements />} />
             <Route path="certificates" element={<AdminCertificates />} />
             <Route path="reports" element={<AdminReports />} />
-<<<<<<< HEAD
             <Route path="hostel" element={<AdminHostel />} />
             <Route path="transport" element={<AdminTransport />} />
             <Route path="leave-approvals" element={<AdminLeaveApprovals />} />
             <Route path="payroll" element={<AdminPayroll />} />
             <Route path="scholarship" element={<AdminScholarship />} />
             <Route path="events" element={<AdminEvents />} />
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             <Route path="result-upload" element={<AdminResultUpload />} />
           </Route>
 

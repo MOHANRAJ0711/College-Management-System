@@ -162,12 +162,7 @@ export default function ManageCourses() {
       const payload = {
         code: form.code,
         name: form.name,
-<<<<<<< HEAD
         department: form.departmentId || undefined,
-=======
-        departmentId: form.departmentId || undefined,
-        department: form.department || undefined,
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
         semester: form.semester ? Number(form.semester) : undefined,
         credits: form.credits ? Number(form.credits) : undefined,
         type: form.type,
@@ -309,7 +304,6 @@ export default function ManageCourses() {
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
-<<<<<<< HEAD
             <label className="block sm:col-span-2">
               <span className="text-xs font-semibold text-slate-600">Department</span>
               <select
@@ -325,23 +319,6 @@ export default function ManageCourses() {
                   </option>
                 ))}
               </select>
-=======
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department</span>
-              <input
-                value={form.department}
-                onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department ID</span>
-              <input
-                value={form.departmentId}
-                onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             </label>
             <label className="block">
               <span className="text-xs font-semibold text-slate-600">Semester</span>

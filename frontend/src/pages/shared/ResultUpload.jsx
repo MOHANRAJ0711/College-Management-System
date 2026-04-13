@@ -73,10 +73,7 @@ export default function ResultUpload() {
   const [batchesLoading, setBatchesLoading] = useState(false);
   const [viewBatch, setViewBatch] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
-<<<<<<< HEAD
   const [notifyStudents, setNotifyStudents] = useState(false);
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
   const loadBatches = useCallback(async () => {
     setBatchesLoading(true);
@@ -134,19 +131,12 @@ export default function ResultUpload() {
         title: batchTitle, department: batchDept, semester: batchSemester,
         subject: batchSubject, students, analysis,
         fileName: file?.name, pdfPages: pdfInfo?.pages,
-<<<<<<< HEAD
         notifyStudents,
       });
       toast.success('Result batch saved' + (notifyStudents ? ' and students notified!' : '!'));
       setShowSaveForm(false);
       setBatchTitle(''); setBatchDept(''); setBatchSemester(''); setBatchSubject('');
       setNotifyStudents(false);
-=======
-      });
-      toast.success('Result batch saved!');
-      setShowSaveForm(false);
-      setBatchTitle(''); setBatchDept(''); setBatchSemester(''); setBatchSubject('');
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       loadBatches();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save');
@@ -202,10 +192,7 @@ export default function ResultUpload() {
   const reset = () => {
     setFile(null); setStudents([]); setAnalysis(null); setPdfInfo(null);
     setSearch(''); setStatusFilter('all'); setGradeFilter('all'); setViewBatch(null);
-<<<<<<< HEAD
     setNotifyStudents(false);
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -229,12 +216,9 @@ export default function ResultUpload() {
   const arrearCount = students.filter((s) => s.status === 'Fail').length;
   const passCount = students.filter((s) => s.status === 'Pass').length;
 
-<<<<<<< HEAD
   // Extract detected subject codes for table headers
   const subjectCodes = Array.from(new Set(students.flatMap(s => s.subjects?.map(sub => sub.code) || []))).sort();
 
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -278,7 +262,6 @@ export default function ResultUpload() {
             <input value={batchSemester} onChange={(e) => setBatchSemester(e.target.value)} placeholder="Semester" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15" />
             <input value={batchSubject} onChange={(e) => setBatchSubject(e.target.value)} placeholder="Subject" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15" />
           </div>
-<<<<<<< HEAD
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <label className="flex items-center gap-2 cursor-pointer group">
               <div className={`flex h-5 w-5 items-center justify-center rounded border transition ${notifyStudents ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-300 group-hover:border-indigo-400'}`}>
@@ -292,12 +275,6 @@ export default function ResultUpload() {
               {saving ? 'Saving...' : 'Save Batch'}
             </button>
           </div>
-=======
-          <button type="button" onClick={saveBatch} disabled={saving} className="mt-3 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50">
-            {saving ? <FiRefreshCw className="h-4 w-4 animate-spin" /> : <FiSave className="h-4 w-4" />}
-            {saving ? 'Saving...' : 'Save Batch'}
-          </button>
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
         </div>
       )}
 
@@ -396,7 +373,6 @@ export default function ResultUpload() {
           {gradeEntries.length > 0 && (
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-bold text-slate-900">Grade Distribution</h2>
-<<<<<<< HEAD
               <div className="flex flex-wrap items-end gap-4 overflow-x-auto pb-2">
                 {gradeEntries.length > 0 && gradeEntries.map(([grade, count]) => {
                   const max = Math.max(...gradeEntries.map(([, c]) => c), 1);
@@ -406,23 +382,11 @@ export default function ResultUpload() {
                     <div key={grade} className="flex flex-col items-center gap-2 grow min-w-[3rem]">
                       <span className="text-xs font-semibold text-slate-600">{count}</span>
                       <div className={`w-full rounded-t-lg ${gc[grade] || 'bg-slate-400'} transition-all`} style={{ height: `${Math.max(h, 8)}px` }} title={`${grade}: ${count}`} />
-=======
-              <div className="flex flex-wrap items-end gap-4">
-                {gradeEntries.map(([grade, count]) => {
-                  const max = Math.max(...gradeEntries.map(([, c]) => c), 1);
-                  const h = Math.round((count / max) * 160);
-                  const gc = { O: 'bg-emerald-500', 'A+': 'bg-teal-500', A: 'bg-blue-500', 'B+': 'bg-indigo-500', B: 'bg-violet-500', C: 'bg-amber-500', D: 'bg-orange-500', F: 'bg-red-500' };
-                  return (
-                    <div key={grade} className="flex flex-col items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-600">{count}</span>
-                      <div className={`w-12 rounded-t-lg ${gc[grade] || 'bg-slate-400'} transition-all`} style={{ height: `${Math.max(h, 8)}px` }} title={`${grade}: ${count}`} />
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                       <span className="text-sm font-bold text-slate-800">{grade}</span>
                     </div>
                   );
                 })}
               </div>
-<<<<<<< HEAD
 
               {analysis.subjectStats?.length > 0 && (
                 <div className="mt-8">
@@ -448,8 +412,6 @@ export default function ResultUpload() {
                   </div>
                 </div>
               )}
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             </div>
           )}
 
@@ -529,7 +491,6 @@ export default function ResultUpload() {
                   <th className="px-4 py-3 font-semibold text-slate-700">S.No</th>
                   <th className="px-4 py-3 font-semibold text-slate-700">Roll Number</th>
                   <th className="px-4 py-3 font-semibold text-slate-700">Student Name</th>
-<<<<<<< HEAD
                   {subjectCodes.length > 0 ? (
                     subjectCodes.map(code => (
                       <th key={code} className="px-4 py-3 font-semibold text-slate-700 uppercase">{code}</th>
@@ -540,10 +501,6 @@ export default function ResultUpload() {
                       <th className="px-4 py-3 font-semibold text-slate-700">Grade</th>
                     </>
                   )}
-=======
-                  <th className="px-4 py-3 font-semibold text-slate-700">Marks</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700">Grade</th>
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                   <th className="px-4 py-3 font-semibold text-slate-700">CGPA</th>
                   <th className="px-4 py-3 font-semibold text-slate-700">Status</th>
                 </tr>
@@ -554,7 +511,6 @@ export default function ResultUpload() {
                     <td className="px-4 py-3 tabular-nums text-slate-500">{i + 1}</td>
                     <td className="px-4 py-3 font-medium text-slate-900">{s.rollNumber || '—'}</td>
                     <td className="px-4 py-3 text-slate-800">{s.name || '—'}</td>
-<<<<<<< HEAD
                     {subjectCodes.length > 0 ? (
                       subjectCodes.map(code => {
                         const sub = s.subjects?.find(sub => sub.code === code);
@@ -577,15 +533,6 @@ export default function ResultUpload() {
                         </td>
                       </>
                     )}
-=======
-                    <td className="px-4 py-3 tabular-nums text-slate-700">{s.marks != null ? s.marks : '—'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                        s.grade === 'O' || s.grade === 'A+' || s.grade === 'A' ? 'bg-emerald-100 text-emerald-800'
-                        : s.grade === 'F' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-900'
-                      }`}>{s.grade || '—'}</span>
-                    </td>
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                     <td className="px-4 py-3 tabular-nums font-semibold text-indigo-700">{s.cgpa != null ? s.cgpa.toFixed(1) : '—'}</td>
                     <td className="px-4 py-3">
                       {s.status === 'Pass' ? (

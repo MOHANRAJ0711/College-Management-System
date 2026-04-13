@@ -15,14 +15,7 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: {
-        values: [
-          'general',
-          'academic',
-          'exam',
-          'fee',
-          'placement',
-          'event',
-        ],
+        values: ['general', 'academic', 'exam', 'fee', 'placement', 'event', 'timetable'],
         message: '{VALUE} is not a valid notification type',
       },
       default: 'general',
@@ -35,6 +28,19 @@ const notificationSchema = new mongoose.Schema(
       },
       default: 'all',
     },
+    // Individual recipient — for personal notifications like class reminders
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    // Track who has read this notification
+    readBy: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        readAt: { type: Date, default: Date.now },
+      },
+    ],
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Department',
@@ -55,8 +61,17 @@ const notificationSchema = new mongoose.Schema(
     expiryDate: {
       type: Date,
     },
+    // Metadata for timetable reminders to avoid duplicates
+    meta: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: true }
 );
+
+// Index for fast per-user notification queries
+notificationSchema.index({ recipient: 1, createdAt: -1 });
+notificationSchema.index({ targetRole: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

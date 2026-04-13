@@ -24,10 +24,7 @@ const emptyForm = {
   employeeId: '',
   name: '',
   email: '',
-<<<<<<< HEAD
   password: '',
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   departmentId: '',
   department: '',
   designation: '',
@@ -49,7 +46,6 @@ function deptId(row) {
 }
 
 function formatSubjects(subjects) {
-<<<<<<< HEAD
   if (Array.isArray(subjects)) {
     return subjects.map(s => {
       if (typeof s === 'string') return s;
@@ -57,9 +53,6 @@ function formatSubjects(subjects) {
       return String(s);
     }).join(', ');
   }
-=======
-  if (Array.isArray(subjects)) return subjects.join(', ');
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   if (typeof subjects === 'string') return subjects;
   return '—';
 }
@@ -186,10 +179,7 @@ export default function ManageFaculty() {
       employeeId: row.employeeId ?? row.empId ?? '',
       name: row.name ?? '',
       email: row.email ?? '',
-<<<<<<< HEAD
       password: '',
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       departmentId: deptId(row),
       department: deptName(row),
       designation: row.designation ?? '',
@@ -210,13 +200,8 @@ export default function ManageFaculty() {
         employeeId: form.employeeId,
         name: form.name,
         email: form.email || undefined,
-<<<<<<< HEAD
         password: form.password || (editId ? undefined : 'faculty123'),
         department: form.departmentId || undefined,
-=======
-        departmentId: form.departmentId || undefined,
-        department: form.department || undefined,
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
         designation: form.designation || undefined,
         subjects: subjectsArr.length ? subjectsArr : undefined,
       };
@@ -437,24 +422,16 @@ export default function ManageFaculty() {
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
-<<<<<<< HEAD
             <label className="block sm:col-span-1">
               <span className="text-xs font-semibold text-slate-600">Email</span>
               <input
                 type="email"
                 required={!editId}
-=======
-            <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600">Email</span>
-              <input
-                type="email"
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
-<<<<<<< HEAD
             <label className="block sm:col-span-1">
               <span className="text-xs font-semibold text-slate-600">Password {editId ? '(leave blank to keep)' : ''}</span>
               <input
@@ -462,26 +439,10 @@ export default function ManageFaculty() {
                 required={!editId}
                 value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-=======
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department</span>
-              <input
-                value={form.department}
-                onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department ID</span>
-              <input
-                value={form.departmentId}
-                onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
             <label className="block sm:col-span-2">
-<<<<<<< HEAD
               <span className="text-xs font-semibold text-slate-600">Department</span>
               <select
                 required
@@ -521,15 +482,6 @@ export default function ManageFaculty() {
                 <option value="Lab Assistant">Lab Assistant</option>
                 <option value="Other">Other</option>
               </select>
-=======
-              <span className="text-xs font-semibold text-slate-600">Designation</span>
-              <input
-                value={form.designation}
-                onChange={(e) => setForm((f) => ({ ...f, designation: e.target.value }))}
-                placeholder="Assistant Professor, Professor…"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             </label>
             <label className="block sm:col-span-2">
               <span className="text-xs font-semibold text-slate-600">Subjects (comma separated)</span>

@@ -30,10 +30,7 @@ export default function ManageDepartments() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState([]);
-<<<<<<< HEAD
   const [faculties, setFaculties] = useState([]);
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -52,7 +49,6 @@ export default function ManageDepartments() {
     }
   }, []);
 
-<<<<<<< HEAD
   const loadFaculties = useCallback(async () => {
     try {
       const { data } = await api.get('/faculty');
@@ -66,11 +62,6 @@ export default function ManageDepartments() {
     load();
     loadFaculties();
   }, [load, loadFaculties]);
-=======
-  useEffect(() => {
-    load();
-  }, [load]);
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 
   const openCreate = () => {
     setEditId(null);
@@ -97,10 +88,6 @@ export default function ManageDepartments() {
         name: form.name,
         code: form.code,
         hod: form.hod || undefined,
-<<<<<<< HEAD
-=======
-        hodName: form.hodName || undefined,
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       };
       if (editId) {
         await api.put(`/departments/${editId}`, payload);
@@ -261,7 +248,6 @@ export default function ManageDepartments() {
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
             />
           </label>
-<<<<<<< HEAD
           <label className="block sm:col-span-2">
             <span className="text-xs font-semibold text-slate-600">Head of Department (HOD)</span>
             <select
@@ -280,23 +266,6 @@ export default function ManageDepartments() {
                 );
               })}
             </select>
-=======
-          <label className="block">
-            <span className="text-xs font-semibold text-slate-600">HOD name</span>
-            <input
-              value={form.hodName}
-              onChange={(e) => setForm((f) => ({ ...f, hodName: e.target.value }))}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs font-semibold text-slate-600">HOD ID (optional)</span>
-            <input
-              value={form.hod}
-              onChange={(e) => setForm((f) => ({ ...f, hod: e.target.value }))}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-            />
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
           </label>
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <button

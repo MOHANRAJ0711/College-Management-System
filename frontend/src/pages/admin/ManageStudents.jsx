@@ -24,10 +24,7 @@ const emptyForm = {
   rollNumber: '',
   name: '',
   email: '',
-<<<<<<< HEAD
   password: '',
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   departmentId: '',
   department: '',
   semester: '',
@@ -188,10 +185,7 @@ export default function ManageStudents() {
       rollNumber: row.rollNumber ?? row.roll ?? '',
       name: row.name ?? '',
       email: row.email ?? '',
-<<<<<<< HEAD
       password: '',
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
       departmentId: deptId(row),
       department: deptName(row),
       semester: row.semester ?? '',
@@ -209,13 +203,8 @@ export default function ManageStudents() {
         rollNumber: form.rollNumber,
         name: form.name,
         email: form.email || undefined,
-<<<<<<< HEAD
         password: form.password || (editId ? undefined : 'student123'),
         department: form.departmentId || undefined,
-=======
-        departmentId: form.departmentId || undefined,
-        department: form.department || undefined,
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
         semester: form.semester ? Number(form.semester) : undefined,
         section: form.section || undefined,
         status: form.status,
@@ -447,24 +436,16 @@ export default function ManageStudents() {
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
-<<<<<<< HEAD
             <label className="block sm:col-span-1">
               <span className="text-xs font-semibold text-slate-600">Email</span>
               <input
                 type="email"
                 required={!editId}
-=======
-            <label className="block sm:col-span-2">
-              <span className="text-xs font-semibold text-slate-600">Email</span>
-              <input
-                type="email"
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
-<<<<<<< HEAD
             <label className="block sm:col-span-1">
               <span className="text-xs font-semibold text-slate-600">Password {editId ? '(leave blank to keep)' : ''}</span>
               <input
@@ -497,25 +478,6 @@ export default function ManageStudents() {
                   </option>
                 ))}
               </select>
-=======
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department</span>
-              <input
-                value={form.department}
-                onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
-                placeholder="Department name"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-600">Department ID</span>
-              <input
-                value={form.departmentId}
-                onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
-                placeholder="Optional"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
-              />
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             </label>
             <label className="block">
               <span className="text-xs font-semibold text-slate-600">Semester</span>

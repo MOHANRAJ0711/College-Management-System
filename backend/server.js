@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
+const { startTimetableNotifier } = require('./utils/timetableNotifier');
 
 dotenv.config();
 connectDB();
@@ -15,38 +16,35 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/students', require('./routes/students'));
-app.use('/api/faculty', require('./routes/faculty'));
-app.use('/api/departments', require('./routes/departments'));
-app.use('/api/courses', require('./routes/courses'));
-app.use('/api/attendance', require('./routes/attendance'));
-app.use('/api/exams', require('./routes/exams'));
-app.use('/api/results', require('./routes/results'));
-app.use('/api/fees', require('./routes/fees'));
-app.use('/api/admissions', require('./routes/admissions'));
-app.use('/api/timetable', require('./routes/timetable'));
-app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/library', require('./routes/library'));
-app.use('/api/placements', require('./routes/placements'));
-app.use('/api/certificates', require('./routes/certificates'));
-app.use('/api/dashboard', require('./routes/dashboard'));
-<<<<<<< HEAD
-app.use('/api/hostel', require('./routes/hostel'));
-app.use('/api/transport', require('./routes/transport'));
-app.use('/api/leave', require('./routes/leave'));
-app.use('/api/payroll', require('./routes/payroll'));
-app.use('/api/lms', require('./routes/lms'));
-app.use('/api/lifecycle', require('./routes/lifecycle'));
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
-app.use('/api/result-upload', require('./routes/resultUpload'));
-app.use('/api/face-attendance', require('./routes/faceAttendance'));
-app.use('/api/complaints', require('./routes/complaints'));
-app.use('/api/service-requests', require('./routes/serviceRequests'));
-app.use('/api/assignments', require('./routes/assignments'));
-app.use('/api/student-documents', require('./routes/studentDocuments'));
-app.use('/api/hod', require('./routes/hod'));
+app.use('/api/auth', require('./modules/enrollment/routes/auth'));
+app.use('/api/students', require('./modules/enrollment/routes/students'));
+app.use('/api/faculty', require('./modules/hrms/routes/faculty'));
+app.use('/api/departments', require('./modules/academic/routes/departments'));
+app.use('/api/courses', require('./modules/academic/routes/courses'));
+app.use('/api/attendance', require('./modules/academic/routes/attendance'));
+app.use('/api/exams', require('./modules/academic/routes/exams'));
+app.use('/api/results', require('./modules/academic/routes/results'));
+app.use('/api/fees', require('./modules/enrollment/routes/fees'));
+app.use('/api/admissions', require('./modules/enrollment/routes/admissions'));
+app.use('/api/timetable', require('./modules/academic/routes/timetable'));
+app.use('/api/notifications', require('./modules/hrms/routes/notifications'));
+app.use('/api/library', require('./modules/enrollment/routes/library'));
+app.use('/api/placements', require('./modules/enrollment/routes/placements'));
+app.use('/api/certificates', require('./modules/enrollment/routes/certificates'));
+app.use('/api/dashboard', require('./modules/hrms/routes/dashboard'));
+app.use('/api/hostel', require('./modules/enrollment/routes/hostel'));
+app.use('/api/transport', require('./modules/enrollment/routes/transport'));
+app.use('/api/leave', require('./modules/hrms/routes/leave'));
+app.use('/api/payroll', require('./modules/hrms/routes/payroll'));
+app.use('/api/lms', require('./modules/academic/routes/lms'));
+app.use('/api/lifecycle', require('./modules/hrms/routes/lifecycle'));
+app.use('/api/result-upload', require('./modules/academic/routes/resultUpload'));
+app.use('/api/face-attendance', require('./modules/academic/routes/faceAttendance'));
+app.use('/api/complaints', require('./modules/hrms/routes/complaints'));
+app.use('/api/service-requests', require('./modules/hrms/routes/serviceRequests'));
+app.use('/api/assignments', require('./modules/academic/routes/assignments'));
+app.use('/api/student-documents', require('./modules/enrollment/routes/studentDocuments'));
+app.use('/api/hod', require('./modules/hrms/routes/hod'));
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -58,4 +56,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  // Start timetable reminder cron job
+  startTimetableNotifier();
+});

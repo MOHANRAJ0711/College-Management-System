@@ -104,11 +104,7 @@ export default function RequestStatus() {
                   </p>
                 )}
                 {req.documentUrl && (
-<<<<<<< HEAD
                   <a href={req.documentUrl} target="_blank" rel="noreferrer"
-=======
-                  <a href={`http://localhost:5000${req.documentUrl}`} target="_blank" rel="noreferrer"
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
                     className="mt-3 inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100">
                     ⬇ Download Document
                   </a>

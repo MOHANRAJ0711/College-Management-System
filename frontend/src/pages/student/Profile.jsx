@@ -1,16 +1,9 @@
 import { useEffect, useState } from 'react';
-<<<<<<< HEAD
 import { FiCamera, FiLoader, FiMail, FiPhone, FiSave, FiUser } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { loadModels, detectSingleFace } from '../../utils/faceApi';
-=======
-import { FiMail, FiPhone, FiSave, FiUser } from 'react-icons/fi';
-import { toast } from 'react-toastify';
-import { useAuth } from '../../context/AuthContext';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
 import { apiError, formatDate } from './utils';
 
 const emptyForm = {
@@ -39,14 +32,9 @@ function toInputDate(iso) {
 }
 
 export default function Profile() {
-<<<<<<< HEAD
   const { user, updateProfile, updateProfileImage, loading: authLoading } = useAuth();
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-=======
-  const { user, updateProfile, loading: authLoading } = useAuth();
-  const [saving, setSaving] = useState(false);
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
@@ -75,7 +63,6 @@ export default function Profile() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-<<<<<<< HEAD
   async function handleImageChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -124,8 +111,6 @@ export default function Profile() {
     }
   }
 
-=======
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
@@ -182,7 +167,6 @@ export default function Profile() {
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-indigo-600 to-blue-700 p-6 text-white shadow-lg sm:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-<<<<<<< HEAD
           <div className="group relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-white/20 ring-2 ring-white/30 transition hover:ring-white">
             {user?.avatar ? (
               <img
@@ -212,13 +196,6 @@ export default function Profile() {
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-2xl font-bold uppercase">{user?.name ?? 'Student'}</h2>
-=======
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-3xl font-bold ring-2 ring-white/30">
-            {(user?.name || '?').slice(0, 1).toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate text-2xl font-bold">{user?.name ?? 'Student'}</h2>
->>>>>>> 5bf96afa4b78a77bcb7e78c540f952f867f72d09
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-indigo-100">
               <span>Roll: {user?.rollNumber ?? user?.roll_no ?? '—'}</span>
               <span className="hidden sm:inline">·</span>
