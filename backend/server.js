@@ -9,11 +9,18 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+const frontendIndexPath = path.join(frontendDistPath, 'index.html');
+const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // Routes
 app.use('/api/auth', require('./modules/enrollment/routes/auth'));
@@ -45,6 +52,15 @@ app.use('/api/service-requests', require('./modules/hrms/routes/serviceRequests'
 app.use('/api/assignments', require('./modules/academic/routes/assignments'));
 app.use('/api/student-documents', require('./modules/enrollment/routes/studentDocuments'));
 app.use('/api/hod', require('./modules/hrms/routes/hod'));
+app.use('/api/reports', require('./modules/hrms/routes/reports'));
+
+if (isProduction) {
+  app.use(express.static(frontendDistPath));
+
+  app.get(/^(?!\/api|\/uploads|\/health).*/, (req, res) => {
+    res.sendFile(frontendIndexPath);
+  });
+}
 
 // Error handler
 app.use((err, req, res, next) => {

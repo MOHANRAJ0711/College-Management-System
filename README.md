@@ -122,6 +122,54 @@ npm run dev              # Vite dev server — http://localhost:3000 (proxies /a
 
 Ensure the backend is running on port **5000** (or adjust the proxy in `frontend/vite.config.js`) so API calls succeed.
 
+## Deploying On Render
+
+This repository is now configured to deploy as a **single Render web service** from the repo root.
+
+### Included deployment files
+
+- `render.yaml` configures the Render service
+- root `package.json` provides repo-level `build` and `start` commands
+- `backend/server.js` serves the built frontend in production
+
+### Render settings
+
+If you create the service manually, use:
+
+```bash
+Build Command: npm run build
+Start Command: npm start
+Root Directory: .
+```
+
+Do **not** set the root directory to `server`, because this repo uses `backend/` and `frontend/`.
+
+### Required environment variables on Render
+
+- `MONGODB_URI`
+- `JWT_SECRET`
+
+### Recommended environment variables on Render
+
+- `NODE_ENV=production`
+- `JWT_EXPIRE=30d`
+- `COLLEGE_NAME=EduManager College`
+- `LIBRARY_FINE_PER_DAY=2`
+
+### How production works
+
+- Render runs the root build, which installs backend and frontend dependencies
+- Vite builds the frontend into `frontend/dist`
+- Express starts from `backend/server.js`
+- In production, Express serves:
+  - API routes under `/api`
+  - uploaded files under `/uploads`
+  - the React app for all other browser routes
+
+### Health check
+
+Use `/health` as the Render health check path.
+
 ## Default login credentials (after seeding)
 
 | Role | Email | Password |
