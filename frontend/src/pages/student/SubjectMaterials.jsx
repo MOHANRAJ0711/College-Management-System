@@ -20,7 +20,7 @@ export default function SubjectMaterials() {
     try {
       const res = await api.get('/lms/materials');
       setMaterials(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to access library resources');
     } finally {
       setLoading(false);

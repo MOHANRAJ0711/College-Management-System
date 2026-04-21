@@ -4,6 +4,7 @@ const Course = require('../../../models/Course');
 const Timetable = require('../../../models/Timetable');
 const Notification = require('../../../models/Notification');
 const User = require('../../../models/User');
+const Attendance = require('../../../models/Attendance');
 const handleError = require('../../../utils/handleError');
 
 const getHodDept = async (userId) => {
@@ -17,15 +18,49 @@ exports.getDashboard = async (req, res) => {
     if (!dept) return res.status(403).json({ message: 'No department assigned' });
     const deptId = dept._id;
 
-    const [students, facultyList, courses] = await Promise.all([
+    const [students, facultyList, courses, attendanceStats] = await Promise.all([
       Student.countDocuments({ department: deptId }),
       Faculty.countDocuments({ department: deptId }),
       Course.countDocuments({ department: deptId }),
+      Attendance.aggregate([
+        {
+          $lookup: {
+            from: 'courses',
+            localField: 'course',
+            foreignField: '_id',
+            as: 'courseInfo',
+          },
+        },
+        { $unwind: '$courseInfo' },
+        { $match: { 'courseInfo.department': deptId } },
+        {
+          $group: {
+            _id: '$course',
+            courseName: { $first: '$courseInfo.name' },
+            courseCode: { $first: '$courseInfo.code' },
+            total: { $sum: 1 },
+            attended: {
+              $sum: { $cond: [{ $in: ['$status', ['present', 'late']] }, 1, 0] },
+            },
+          },
+        },
+        {
+          $project: {
+            label: { $concat: ['$courseCode', ' - ', '$courseName'] },
+            value: {
+              $cond: [{ $gt: ['$total', 0] }, { $multiply: [{ $divide: ['$attended', '$total'] }, 100] }, 0],
+            },
+          },
+        },
+        { $sort: { value: -1 } },
+        { $limit: 10 },
+      ]),
     ]);
 
     return res.json({
       department: dept,
       stats: { students, faculty: facultyList, courses },
+      attendanceStats,
     });
   } catch (err) {
     return handleError(res, err);

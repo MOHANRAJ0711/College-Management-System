@@ -4,11 +4,7 @@ import { FiBookOpen, FiCalendar, FiEdit2, FiPlus, FiTrash2, FiUsers } from 'reac
 import api from '../../services/api';
 import Modal from '../../components/common/Modal';
 
-function deptName(d) {
-  if (!d) return '—';
-  if (typeof d === 'string') return d;
-  return d.name ?? '—';
-}
+
 
 const emptyForm = { title: '', description: '', courseId: '', department: '', semester: '', section: '', dueDate: '', maxMarks: 100, status: 'active' };
 

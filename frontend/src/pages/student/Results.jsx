@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiDownload, FiTrendingUp, FiFileText } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -13,12 +12,26 @@ function statusBadge(status) {
     : 'bg-red-100 text-red-800 ring-red-600/20';
 }
 
-function normalize(res) {
-  const d = res?.data ?? res;
+function normalize(standardRes, batchRes) {
+  const d = standardRes?.data ?? standardRes;
+  const bData = batchRes?.data ?? batchRes ?? [];
   
   // Handle old format (array) or new format (object)
   const examResults = Array.isArray(d) ? d : (Array.isArray(d.examResults) ? d.examResults : []);
-  const batchResults = Array.isArray(d.batchResults) ? d.batchResults : [];
+  const standardCgpa = Number(d.cgpa || 0);
+
+  // Parse batch results from the new result-upload batches
+  const normalizedBatches = bData.map((b) => ({
+    id: b.batchId,
+    label: b.title || 'Result',
+    semester: b.semester || '?',
+    status: b.result?.status || 'Pass',
+    type: 'batch',
+    subjects: b.result?.subjects || [],
+    cgpa: b.result?.cgpa,
+    date: b.date,
+    description: b.description
+  }));
 
   // 1. Group individual exam results by semester or batching
   const semesterMap = {};
@@ -45,16 +58,7 @@ function normalize(res) {
     });
   });
 
-  // 2. Add batch results as separate cards/sections
-  const batches = batchResults.map((b) => ({
-    id: b._id,
-    label: b.title,
-    semester: b.semester,
-    status: b.studentData?.status || 'Pass',
-    type: 'batch',
-    subjects: b.studentData?.subjects || [],
-    cgpa: b.studentData?.cgpa
-  }));
+  // Use standard grouping logic for examResults by semester
 
   // Combine them for the UI
   // Standard results grouped by semester
@@ -66,8 +70,8 @@ function normalize(res) {
   }));
 
   return {
-    cgpa: Number(d.cgpa || 0),
-    semesters: [...standardSemesters, ...batches]
+    cgpa: standardCgpa,
+    semesters: [...standardSemesters, ...normalizedBatches]
   };
 }
 
@@ -83,8 +87,12 @@ export default function Results() {
       setLoading(true);
       setError('');
       try {
-        const { data: res } = await api.get('/results/student');
-        const normalized = normalize(res);
+        const [examRes, batchRes] = await Promise.all([
+          api.get('/results/student'),
+          api.get('/result-upload/my-results')
+        ]);
+        
+        const normalized = normalize(examRes, batchRes);
         if (!cancelled) {
           setData(normalized);
           if (normalized.semesters.length) {
@@ -238,6 +246,18 @@ export default function Results() {
                         </tbody>
                       </table>
                     </div>
+                    {sem.type === 'batch' && (
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                        >
+                          <FiDownload className="h-4 w-4" />
+                          Download Result Card
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </div>

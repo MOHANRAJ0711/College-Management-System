@@ -3,6 +3,8 @@ const { protect, authorize } = require('../../../middleware/auth');
 const {
   getRoutes,
   createRoute,
+  updateRoute,
+  deleteRoute,
   getSubscriptions,
   subscribeRoute,
   updateSubscriptionStatus,
@@ -14,6 +16,10 @@ const router = express.Router();
 router.route('/')
   .get(protect, getRoutes)
   .post(protect, authorize('admin'), createRoute);
+
+router.route('/:id')
+  .patch(protect, authorize('admin'), updateRoute)
+  .delete(protect, authorize('admin'), deleteRoute);
 
 // --- Subscriptions ---
 router.route('/subscriptions')

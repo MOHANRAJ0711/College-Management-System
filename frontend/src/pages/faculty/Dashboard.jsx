@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import AttendanceChart from '../../components/analytics/AttendanceChart';
 
 export default function FacultyDashboard() {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ export default function FacultyDashboard() {
       try {
         const res = await api.get('/faculty/dashboard');
         setData(res.data.data || res.data);
-      } catch (err) {
+      } catch {
         toast.error('Failed to load dashboard');
         setData({});
       } finally {
@@ -76,6 +77,14 @@ export default function FacultyDashboard() {
           </Link>
         ))}
       </div>
+
+      {data?.attendanceStats?.length > 0 && (
+        <AttendanceChart 
+          data={data.attendanceStats} 
+          title="My Course Attendance" 
+          color="rose"
+        />
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow p-5">

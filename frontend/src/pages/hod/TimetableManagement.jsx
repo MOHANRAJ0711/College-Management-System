@@ -260,7 +260,7 @@ export default function HODTimetableManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {DAYS.map((day, dayIdx) => {
+                {DAYS.map((day) => {
                   const dayEntry = grouped[day]?.[0];
                   return (
                     <tr key={day} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">

@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiFilter } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiFilter, FiArrowRight } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -10,6 +9,7 @@ const TYPES = [
   { id: 'general', label: 'General' },
   { id: 'academic', label: 'Academic' },
   { id: 'exam', label: 'Exam' },
+  { id: 'result', label: 'Results' },
   { id: 'fee', label: 'Fee' },
   { id: 'placement', label: 'Placement' },
 ];
@@ -20,6 +20,7 @@ function typeStyle(t) {
     general: 'bg-slate-100 text-slate-800',
     academic: 'bg-indigo-100 text-indigo-800',
     exam: 'bg-amber-100 text-amber-900',
+    result: 'bg-emerald-100 text-emerald-900',
     fee: 'bg-emerald-100 text-emerald-900',
     placement: 'bg-violet-100 text-violet-900',
   };
@@ -33,8 +34,9 @@ function normalize(res) {
     id: n.id ?? n._id ?? i,
     title: n.title ?? 'Notice',
     message: n.message ?? n.body ?? n.content ?? '',
-    type: (n.type ?? n.category ?? 'general').toLowerCase(),
+    type: (n.meta?.type === 'result' ? 'result' : (n.type ?? n.category ?? 'general')).toLowerCase(),
     createdAt: n.createdAt ?? n.date ?? n.sentAt,
+    meta: n.meta || {}
   }));
 }
 
@@ -159,7 +161,18 @@ export default function Notifications() {
                 </button>
                 {expanded ? (
                   <div className="border-t border-slate-100 px-5 py-4 text-sm leading-relaxed text-slate-700">
-                    {n.message || 'No additional details.'}
+                    <p>{n.message || 'No additional details.'}</p>
+                    {n.type === 'result' && (
+                      <div className="mt-4">
+                        <a
+                          href="/student/results"
+                          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-indigo-700"
+                        >
+                          View Result Details
+                          <FiArrowRight className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </li>

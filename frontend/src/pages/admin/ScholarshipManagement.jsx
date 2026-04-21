@@ -19,7 +19,7 @@ export default function ScholarshipManagement() {
     try {
       const res = await api.get('/lifecycle/scholarship');
       setScholarships(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
@@ -31,7 +31,7 @@ export default function ScholarshipManagement() {
       await api.patch(`/lifecycle/scholarship/${id}`, { status });
       toast.success(`Application ${status}`);
       fetchScholarships();
-    } catch (err) {
+    } catch {
       toast.error('Action failed');
     }
   };

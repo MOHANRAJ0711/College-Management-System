@@ -21,6 +21,28 @@ const transportController = {
     }
   },
 
+  updateRoute: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const route = await BusRoute.findByIdAndUpdate(id, req.body, { new: true });
+      if (!route) return res.status(404).json({ message: 'Route not found' });
+      res.status(200).json(route);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  },
+
+  deleteRoute: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const route = await BusRoute.findByIdAndDelete(id);
+      if (!route) return res.status(404).json({ message: 'Route not found' });
+      res.status(200).json({ message: 'Route deleted successfully' });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  },
+
   // --- Subscription Management (Admin & Student) ---
   getSubscriptions: async (req, res) => {
     try {

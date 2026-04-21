@@ -5,11 +5,13 @@ import {
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ScholarshipPortal() {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
   const [form, setForm] = useState({
     schemeName: '',
     type: 'government',
@@ -19,17 +21,19 @@ export default function ScholarshipPortal() {
 
   useEffect(() => {
     fetchApplications();
-  }, []);
+  // eslint-disable-next-line
+  }, [user]);
 
   const fetchApplications = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const res = await api.get('/lifecycle/scholarship');
       // Filter for current student is handled on backend or here
-      const studentId = JSON.parse(localStorage.getItem('user'))?.id;
+      const studentId = user?.id || user?._id;
       const myApps = res.data.filter(s => s.student?.user?._id === studentId || s.student?._id === studentId);
       setScholarships(myApps);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);

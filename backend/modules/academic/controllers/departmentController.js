@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Department = require('../../../models/Department');
+const Student = require('../../../models/Student');
+const Course = require('../../../models/Course');
 
 const handleError = (res, err, defaultMsg = 'Server error') => {
   if (err.name === 'ValidationError') {
@@ -33,11 +35,21 @@ const getDepartments = async (req, res) => {
     }
 
     const departments = await Department.find(filter)
-      .populate('hod', 'employeeId designation')
+      .populate('hod', 'employeeId designation name')
       .sort({ name: 1 })
       .lean();
 
-    return res.status(200).json(departments);
+    const results = await Promise.all(
+      departments.map(async (d) => {
+        const [studentCount, courseCount] = await Promise.all([
+          Student.countDocuments({ department: d._id }),
+          Course.countDocuments({ department: d._id }),
+        ]);
+        return { ...d, studentCount, courseCount };
+      })
+    );
+
+    return res.status(200).json(results);
   } catch (err) {
     return handleError(res, err, 'Could not fetch departments');
   }

@@ -18,6 +18,7 @@ export default function FaceRegister() {
   const [preview, setPreview] = useState(null);
   const [descriptor, setDescriptor] = useState(null);
   const [file, setFile] = useState(null);
+  // eslint-disable-next-line
   const [faceBox, setFaceBox] = useState(null);
   const [webcamActive, setWebcamActive] = useState(false);
 
@@ -39,7 +40,7 @@ export default function FaceRegister() {
     try {
       await loadModels();
       setStatus(STATUS.READY);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load face detection models');
       setStatus(STATUS.IDLE);
     }
@@ -60,14 +61,16 @@ export default function FaceRegister() {
     await initModels();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: 640, height: 480 },
+        video: { 
+          facingMode: { ideal: 'user' }, 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
       setWebcamActive(true);
-    } catch {
+    } catch (err) {
+      console.error('Camera access error:', err);
       toast.error('Could not access camera');
     }
   };
@@ -95,6 +98,12 @@ export default function FaceRegister() {
     streamRef.current = null;
     setWebcamActive(false);
   };
+
+  useEffect(() => {
+    if (webcamActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [webcamActive]);
 
   useEffect(() => () => stopWebcam(), []);
 

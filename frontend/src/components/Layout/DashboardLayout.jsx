@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import {
   FiBell,
   FiChevronDown,
@@ -15,6 +15,7 @@ import { useDarkMode } from '../../context/DarkModeContext';
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { dark, toggleDark } = useDarkMode();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -159,7 +160,7 @@ export default function DashboardLayout() {
                       <button
                         type="button"
                         className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20"
-                        onClick={() => { setMenuOpen(false); logout(); }}
+                        onClick={() => { setMenuOpen(false); logout(); navigate('/login'); }}
                       >
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400">
                           <FiLogOut className="h-4 w-4" />

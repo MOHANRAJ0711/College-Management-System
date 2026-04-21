@@ -47,7 +47,7 @@ function dashboardForUser(user) {
 }
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, verifyOtp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname;
@@ -58,6 +58,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otp, setOtp] = useState('');
 
   const activeRole = ROLES.find((r) => r.id === selectedRole);
 
@@ -90,12 +92,58 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { user } = await login(email, password);
-      const target = from && from !== '/login' ? from : dashboardForUser(user);
+      const resp = await login(email, password);
+      // If OTP is required, backend returns otpRequired: true
+      if (resp.otpRequired) {
+        setOtpRequired(true);
+        setError('');
+        return;
+      }
+      
+      const { user } = resp;
+      let target = dashboardForUser(user);
+      if (from && from !== '/login') {
+        const isProtectedPath = ['/admin', '/faculty', '/hod', '/student'].some(p => from.startsWith(p));
+        const isCompatible = 
+          (user.role === 'admin' && from.startsWith('/admin')) ||
+          (user.role === 'student' && from.startsWith('/student')) ||
+          (user.role === 'faculty' && (from.startsWith('/faculty') || from.startsWith('/hod')));
+          
+        if (!isProtectedPath || isCompatible) {
+          target = from;
+        }
+      }
       navigate(target, { replace: true });
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Invalid credentials.';
       setError(typeof msg === 'string' ? msg : 'Unable to sign in.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const { user } = await verifyOtp(email, otp);
+      let target = dashboardForUser(user);
+      if (from && from !== '/login') {
+        const isProtectedPath = ['/admin', '/faculty', '/hod', '/student'].some(p => from.startsWith(p));
+        const isCompatible = 
+          (user.role === 'admin' && from.startsWith('/admin')) ||
+          (user.role === 'student' && from.startsWith('/student')) ||
+          (user.role === 'faculty' && (from.startsWith('/faculty') || from.startsWith('/hod')));
+          
+        if (!isProtectedPath || isCompatible) {
+          target = from;
+        }
+      }
+      navigate(target, { replace: true });
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'OTP verification failed.';
+      setError(typeof msg === 'string' ? msg : 'Invalid OTP.');
     } finally {
       setLoading(false);
     }
@@ -169,73 +217,120 @@ export default function Login() {
 
           {/* Step 3: Login form */}
           {showForm && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className={`mb-4 flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 ${activeRole?.bg ?? ''}`}>
-                <span className="text-base">{activeRole?.icon}</span>
-                <div>
-                  <p className="text-xs font-semibold text-white/80">
-                    Signing in as{' '}
-                    <span className="text-white">
-                      {selectedRole === 'faculty' && selectedSubRole === 'hod' ? 'HOD' : activeRole?.label}
-                    </span>
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => { setSelectedRole(null); setSelectedSubRole(null); }}
-                    className="text-[10px] text-white/40 hover:text-white/70 underline"
-                  >
-                    Change role
-                  </button>
+            otpRequired ? (
+              <form onSubmit={handleOtpSubmit} className="space-y-4">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-white/80 font-medium">Enter the 6-digit code sent to your email</p>
+                  <p className="text-xs text-white/40 mt-1">{email}</p>
                 </div>
-              </div>
 
-              {error && (
-                <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                  {error}
-                </div>
-              )}
-
-              <label className="block">
-                <span className="text-xs font-semibold uppercase tracking-wide text-white/50">Email</span>
-                <input
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-2 focus:ring-white/10"
-                  placeholder="your@email.edu"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-xs font-semibold uppercase tracking-wide text-white/50">Password</span>
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-2 focus:ring-white/10"
-                  placeholder="••••••••"
-                />
-              </label>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={`flex w-full items-center justify-center rounded-xl bg-gradient-to-r ${activeRole?.color ?? 'from-indigo-600 to-blue-600'} py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70`}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                    Signing in…
-                  </span>
-                ) : (
-                  'Sign In'
+                {error && (
+                  <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                    {error}
+                  </div>
                 )}
-              </button>
-            </form>
+
+                <label className="block">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-white/50">One-Time Password</span>
+                  <input
+                    type="text"
+                    maxLength="6"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    required
+                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-4 text-center text-2xl font-bold tracking-[0.5em] text-white placeholder-white/10 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-2 focus:ring-white/10"
+                    placeholder="000000"
+                  />
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={loading || otp.length < 6}
+                  className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Verifying…' : 'Verify & Sign In'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOtpRequired(false)}
+                  className="w-full text-center text-xs text-white/40 hover:text-white/70 transition"
+                >
+                  Go back to login
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className={`mb-4 flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 ${activeRole?.bg ?? ''}`}>
+                  <span className="text-base">{activeRole?.icon}</span>
+                  <div>
+                    <p className="text-xs font-semibold text-white/80">
+                      Signing in as{' '}
+                      <span className="text-white">
+                        {selectedRole === 'faculty' && selectedSubRole === 'hod' ? 'HOD' : activeRole?.label}
+                      </span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedRole(null); setSelectedSubRole(null); }}
+                      className="text-[10px] text-white/40 hover:text-white/70 underline"
+                    >
+                      Change role
+                    </button>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                    {error}
+                  </div>
+                )}
+
+                <label className="block">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-white/50">Email</span>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-2 focus:ring-white/10"
+                    placeholder="your@email.edu"
+                  />
+                </label>
+
+                <div>
+                  <label className="block">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-white/50">Password</span>
+                    <input
+                      type="password"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/30 focus:bg-white/15 focus:ring-2 focus:ring-white/10"
+                      placeholder="••••••••"
+                    />
+                  </label>
+                  <div className="mt-2 text-right">
+                    <Link
+                      to="/forgot-password"
+                      className="text-xs text-white/40 hover:text-white/70 transition"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`flex w-full items-center justify-center rounded-xl bg-gradient-to-r ${activeRole?.color ?? 'from-indigo-600 to-blue-600'} py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70`}
+                >
+                  {loading ? 'Signing in…' : 'Sign In'}
+                </button>
+              </form>
+            )
           )}
 
           {!selectedRole && (

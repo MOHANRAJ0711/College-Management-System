@@ -81,6 +81,10 @@ const studentSchema = new mongoose.Schema(
     admissionDate: {
       type: Date,
     },
+    isProfileComplete: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

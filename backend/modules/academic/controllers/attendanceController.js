@@ -375,10 +375,174 @@ const updateAttendance = async (req, res) => {
   }
 };
 
+/**
+ * Get aggregated attendance summary for all departments or filtered by department/semester
+ * GET /api/attendance/summary
+ */
+const getAttendanceSummary = async (req, res) => {
+  try {
+    const { department, semester, startDate, endDate } = req.query;
+    const match = {};
+
+    if (semester) {
+      match.semester = Number(semester);
+    }
+
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) {
+        const from = normalizeDayUtc(startDate);
+        if (from) match.date.$gte = from;
+      }
+      if (endDate) {
+        const to = normalizeDayUtc(endDate);
+        if (to) {
+          const end = new Date(to);
+          end.setUTCDate(end.getUTCDate() + 1);
+          match.date.$lt = end;
+        }
+      }
+    }
+
+    // Pipeline to group by department
+    const pipeline = [
+      { $match: match },
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'student',
+          foreignField: '_id',
+          as: 'studentInfo',
+        },
+      },
+      { $unwind: '$studentInfo' },
+      {
+        $lookup: {
+          from: 'departments',
+          localField: 'studentInfo.department',
+          foreignField: '_id',
+          as: 'deptInfo',
+        },
+      },
+      { $unwind: '$deptInfo' },
+    ];
+
+    // Filter by department if provided (by ID or Name)
+    if (department) {
+      if (mongoose.Types.ObjectId.isValid(department)) {
+        pipeline.push({
+          $match: { 'deptInfo._id': new mongoose.Types.ObjectId(department) },
+        });
+      } else {
+        pipeline.push({
+          $match: { 'deptInfo.name': new RegExp(department, 'i') },
+        });
+      }
+    }
+
+    // Grouping
+    pipeline.push({
+      $group: {
+        _id: '$deptInfo._id',
+        name: { $first: '$deptInfo.name' },
+        code: { $first: '$deptInfo.code' },
+        totalSessions: { $sum: 1 },
+        presentCount: {
+          $sum: { $cond: [{ $eq: ['$status', 'present'] }, 1, 0] },
+        },
+        lateCount: {
+          $sum: { $cond: [{ $eq: ['$status', 'late'] }, 1, 0] },
+        },
+        absentCount: {
+          $sum: { $cond: [{ $eq: ['$status', 'absent'] }, 1, 0] },
+        },
+        // We'll also collect low attendance students
+        students: {
+          $addToSet: {
+            id: '$studentInfo._id',
+            name: '$studentInfo.name', // We'll need to lookup user name if missing
+            rollNumber: '$studentInfo.rollNumber',
+          },
+        },
+      },
+    });
+
+    pipeline.push({
+      $project: {
+        department: '$name',
+        departmentCode: '$code',
+        averageAttendance: {
+          $cond: [
+            { $gt: ['$totalSessions', 0] },
+            {
+              $multiply: [
+                { $divide: [{ $add: ['$presentCount', '$lateCount'] }, '$totalSessions'] },
+                100,
+              ],
+            },
+            0,
+          ],
+        },
+        sessions: '$totalSessions',
+        present: '$presentCount',
+        late: '$lateCount',
+        absent: '$absentCount',
+        // Optional: you could add logic here to filter students below 75% 
+        // but it's easier to do that per student in a separate lookup if needed.
+      },
+    });
+
+    const summary = await Attendance.aggregate(pipeline);
+
+    // Also identify at-risk students across the whole system or department
+    const atRiskPipeline = [
+      { $match: match },
+      ...pipeline.slice(1, 5), // Reuse lookup logic
+      {
+        $group: {
+          _id: '$student',
+          name: { $first: '$studentInfo.name' },
+          rollNumber: { $first: '$studentInfo.rollNumber' },
+          department: { $first: '$deptInfo.name' },
+          sessions: { $sum: 1 },
+          attended: {
+            $sum: { $cond: [{ $in: ['$status', ['present', 'late']] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $project: {
+          id: '$_id',
+          name: 1,
+          rollNumber: 1,
+          department: 1,
+          rate: {
+            $cond: [{ $gt: ['$sessions', 0] }, { $multiply: [{ $divide: ['$attended', '$sessions'] }, 100] }, 0],
+          },
+        },
+      },
+      { $match: { rate: { $lt: 75 } } },
+      { $limit: 50 },
+    ];
+
+    const lowAttendance = await Attendance.aggregate(atRiskPipeline);
+
+    return res.status(200).json({
+      success: true,
+      data: summary,
+      lowAttendance: lowAttendance,
+    });
+  } catch (err) {
+    console.error('Aggregation error:', err);
+    return handleError(res, err, 'Could not load attendance summary');
+  }
+};
+
 module.exports = {
   markAttendance,
   getAttendance,
   getStudentAttendance,
   getAttendanceReport,
   updateAttendance,
+  getAttendanceSummary,
 };

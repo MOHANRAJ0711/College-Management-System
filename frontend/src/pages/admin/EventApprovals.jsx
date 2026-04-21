@@ -19,7 +19,7 @@ export default function EventApprovals() {
     try {
       const res = await api.get('/lifecycle/event');
       setEvents(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load event proposals');
     } finally {
       setLoading(false);
@@ -31,7 +31,7 @@ export default function EventApprovals() {
       await api.patch(`/lifecycle/event/${id}`, { status });
       toast.success(`Event ${status}`);
       fetchEvents();
-    } catch (err) {
+    } catch {
       toast.error('Action failed');
     }
   };

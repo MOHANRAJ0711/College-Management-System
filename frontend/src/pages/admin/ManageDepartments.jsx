@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { FiLayers, FiPlus, FiSettings } from 'react-icons/fi';
+import { FiDownload, FiFileText, FiLayers, FiPlus, FiSettings } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/common/Modal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
 
 function toastApiError(err, fallback) {
   const msg = err.response?.data?.message ?? err.message;
@@ -71,10 +72,11 @@ export default function ManageDepartments() {
 
   const openEdit = (row) => {
     setEditId(row.id);
+    const hodVal = row.hod && typeof row.hod === 'object' ? (row.hod._id || row.hod.id) : row.hod;
     setForm({
       name: row.name ?? '',
       code: row.code ?? '',
-      hod: row.hod ?? row.hodId ?? '',
+      hod: hodVal ?? row.hodId ?? '',
       hodName: row.hodName ?? row.head ?? '',
     });
     setModalOpen(true);
@@ -119,6 +121,70 @@ export default function ManageDepartments() {
       toastApiError(err, 'Could not update status');
     }
   };
+  
+  const handleExportExcel = () => {
+    if (rows.length === 0) {
+      return toast.info('No department data to export.');
+    }
+
+    const data = rows.map((d) => {
+      const active = d.isActive ?? d.active ?? true;
+      const rawHod = d.hodName ?? d.hod ?? d.head;
+      const hod = typeof rawHod === 'object' && rawHod !== null
+        ? (rawHod.name ?? rawHod.employeeId ?? 'Unknown')
+        : (rawHod || '—');
+        
+      return {
+        Code: d.code ?? '—',
+        Name: d.name ?? '—',
+        'Head of Department': hod,
+        Students: d.studentCount ?? 0,
+        Courses: d.courseCount ?? 0,
+        Status: active ? 'Active' : 'Inactive',
+        'Created At': d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'
+      };
+    });
+
+    try {
+      exportToExcel(data, 'Department_Report');
+      toast.success('Department report exported to Excel');
+    } catch (err) {
+      toast.error('Failed to export data');
+      console.error(err);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (rows.length === 0) {
+      return toast.info('No department data to export.');
+    }
+
+    const data = rows.map((d) => {
+      const active = d.isActive ?? d.active ?? true;
+      const rawHod = d.hodName ?? d.hod ?? d.head;
+      const hod = typeof rawHod === 'object' && rawHod !== null
+        ? (rawHod.name ?? rawHod.employeeId ?? 'Unknown')
+        : (rawHod || '—');
+        
+      return {
+        Code: d.code ?? '—',
+        Name: d.name ?? '—',
+        'Head of Department': hod,
+        Students: d.studentCount ?? 0,
+        Courses: d.courseCount ?? 0,
+        Status: active ? 'Active' : 'Inactive',
+        'Created At': d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'
+      };
+    });
+
+    try {
+      exportToCSV(data, 'Department_Report');
+      toast.success('Department report exported to CSV');
+    } catch (err) {
+      toast.error('Failed to export data');
+      console.error(err);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -130,14 +196,34 @@ export default function ManageDepartments() {
             {user?.name ? <span className="text-slate-500"> · {user.name}</span> : null}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-        >
-          <FiPlus className="h-4 w-4" />
-          Add department
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            title="Export to Excel"
+          >
+            <FiDownload className="h-4 w-4" />
+            Excel
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            title="Export to CSV"
+          >
+            <FiFileText className="h-4 w-4 text-emerald-600" />
+            CSV
+          </button>
+          <button
+            type="button"
+            onClick={openCreate}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            <FiPlus className="h-4 w-4" />
+            Add department
+          </button>
+        </div>
       </header>
 
       {loading ? (
@@ -150,7 +236,10 @@ export default function ManageDepartments() {
             const active = d.isActive ?? d.active ?? true;
             const students = d.studentsCount ?? d.studentCount ?? d.students ?? 0;
             const courses = d.coursesCount ?? d.courseCount ?? d.courses ?? 0;
-            const hod = d.hodName ?? d.hod ?? d.head ?? '—';
+            const rawHod = d.hodName ?? d.hod ?? d.head;
+            const hod = typeof rawHod === 'object' && rawHod !== null
+              ? (rawHod.name ?? rawHod.employeeId ?? 'Unknown')
+              : (rawHod || '—');
             return (
               <article
                 key={d.id}
@@ -257,7 +346,8 @@ export default function ManageDepartments() {
             >
               <option value="">Select HOD (optional)</option>
               {faculties.map((f) => {
-                const userName = f.user?.name ?? f.name ?? f.user ?? 'Unknown';
+                const rawUser = f.user?.name ?? f.name ?? f.user;
+                const userName = typeof rawUser === 'object' && rawUser !== null ? (rawUser._id || 'Unknown') : (rawUser || 'Unknown');
                 const fId = f._id ?? f.id;
                 return (
                   <option key={fId} value={fId}>

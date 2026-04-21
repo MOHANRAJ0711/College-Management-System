@@ -20,7 +20,7 @@ export default function PayrollManagement() {
     try {
       const res = await api.get('/payroll/all');
       setPayroll(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch payroll data');
     } finally {
       setLoading(false);
@@ -32,7 +32,7 @@ export default function PayrollManagement() {
       await api.post('/payroll/generate', { month: batchMonth });
       toast.success(`Payroll generated for ${batchMonth}`);
       fetchPayroll();
-    } catch (err) {
+    } catch {
       toast.error('Generation failed');
     }
   };
@@ -42,7 +42,7 @@ export default function PayrollManagement() {
       await api.patch(`/payroll/${id}/pay`);
       toast.success('Payment disbursed');
       fetchPayroll();
-    } catch (err) {
+    } catch {
       toast.error('Disbursement failed');
     }
   };

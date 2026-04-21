@@ -8,6 +8,7 @@ const {
   getResultBatch,
   deleteResultBatch,
   downloadResultExcel,
+  getMyResults,
 } = require('../controllers/resultUploadController');
 
 const router = express.Router();
@@ -31,5 +32,6 @@ router.get('/batches', protect, authorize('admin', 'faculty'), getResultBatches)
 router.get('/batches/:id', protect, authorize('admin', 'faculty'), getResultBatch);
 router.delete('/batches/:id', protect, authorize('admin'), deleteResultBatch);
 router.post('/download-excel', protect, authorize('admin', 'faculty'), downloadResultExcel);
+router.get('/my-results', protect, authorize('student'), getMyResults);
 
 module.exports = router;

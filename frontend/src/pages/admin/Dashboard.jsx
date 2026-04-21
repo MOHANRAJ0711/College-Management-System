@@ -17,6 +17,7 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import StatsCard from '../../components/common/StatsCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import AttendanceChart from '../../components/analytics/AttendanceChart';
 
 function toastApiError(err, fallback = 'Failed to load dashboard') {
   const msg = err.response?.data?.message ?? err.message;
@@ -62,6 +63,7 @@ function normalizePayload(raw) {
             time: n.createdAt,
           }))
         : [],
+    attendanceSummary: Array.isArray(p?.attendanceSummary) ? p.attendanceSummary : [],
   };
 }
 
@@ -299,13 +301,20 @@ export default function Dashboard() {
           <BarGroup title="Fee collection overview" subtitle="Relative distribution">
             <FeeBars points={model.feeOverview} />
           </BarGroup>
-          <div className="lg:col-span-2 xl:col-span-3">
             <BarGroup
               title="Department-wise students"
               subtitle="Share of enrolled students by department"
             >
               <DeptDistributionBars points={model.departmentDistribution} />
             </BarGroup>
+          <div className="lg:col-span-2 xl:col-span-3">
+            <AttendanceChart 
+              data={model.attendanceSummary.map(s => ({
+                label: s.departmentCode || s.department || 'Dept',
+                value: s.averageAttendance ?? 0
+              }))} 
+              title="Attendance by Department" 
+            />
           </div>
         </section>
       )}

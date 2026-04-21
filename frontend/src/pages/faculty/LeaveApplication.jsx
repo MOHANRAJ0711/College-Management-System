@@ -26,7 +26,7 @@ export default function LeaveApplication() {
     try {
       const res = await api.get('/leave');
       setLeaves(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch leave history');
     } finally {
       setLoading(false);

@@ -32,5 +32,14 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     );
   }
 
+  if (
+    user?.role === 'student' &&
+    user?.studentProfile &&
+    user.studentProfile.isProfileComplete === false &&
+    location.pathname !== '/student/profile'
+  ) {
+    return <Navigate to="/student/profile" replace />;
+  }
+
   return children;
 }

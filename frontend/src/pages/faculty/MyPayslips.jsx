@@ -19,7 +19,7 @@ export default function MyPayslips() {
     try {
       const res = await api.get('/payroll/my-payslips');
       setPayslips(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch payslips');
     } finally {
       setLoading(false);

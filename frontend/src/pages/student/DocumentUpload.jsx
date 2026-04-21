@@ -19,6 +19,7 @@ export default function DocumentUpload() {
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({ title: '', type: 'other', description: '' });
   const [file, setFile] = useState(null);
+  // eslint-disable-next-line
   const [preview, setPreview] = useState(false);
   const fileRef = useRef(null);
 

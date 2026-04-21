@@ -210,14 +210,21 @@ const getFeeReport = async (req, res) => {
       { $group: { _id: null, pendingAmount: { $sum: '$amount' } } },
     ]);
 
+    const collected = (totals?.paidSum ?? 0) + (totals?.partialSum ?? 0);
+    const due = totals?.totalBilled ?? 0;
+    const pending = pendingAmountAgg[0]?.pendingAmount ?? 0;
+
     return res.status(200).json({
+      collected,
+      due,
+      pending,
       summary: totals || {
         totalBilled: 0,
         count: 0,
         paidSum: 0,
         partialSum: 0,
       },
-      pendingAmount: pendingAmountAgg[0]?.pendingAmount ?? 0,
+      pendingAmount: pending,
       byFeeType: byType,
     });
   } catch (err) {

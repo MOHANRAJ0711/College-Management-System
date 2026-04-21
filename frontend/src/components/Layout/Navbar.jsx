@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { FiAward, FiMenu, FiX } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +21,7 @@ const linkBase =
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const close = () => setOpen(false);
@@ -93,6 +94,7 @@ export default function Navbar() {
                 onClick={() => {
                   logout();
                   close();
+                  navigate('/login');
                 }}
                 className="rounded-lg border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold transition hover:bg-white/20"
               >
@@ -167,6 +169,7 @@ export default function Navbar() {
                 onClick={() => {
                   logout();
                   close();
+                  navigate('/login');
                 }}
                 className="rounded-lg border border-white/40 bg-white/10 px-4 py-2 font-semibold"
               >

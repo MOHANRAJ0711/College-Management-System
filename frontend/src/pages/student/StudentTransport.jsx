@@ -5,6 +5,7 @@ import {
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function StudentTransport() {
   const [routes, setRoutes] = useState([]);
@@ -12,12 +13,15 @@ export default function StudentTransport() {
   const [loading, setLoading] = useState(true);
   const [selectedRoute, setSelectedRoute] = useState('');
   const [selectedStop, setSelectedStop] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  // eslint-disable-next-line
+  }, [user]);
 
   const fetchData = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const [rRes, sRes] = await Promise.all([
@@ -25,10 +29,10 @@ export default function StudentTransport() {
         api.get('/transport/subscriptions')
       ]);
       setRoutes(rRes.data);
-      const studentId = JSON.parse(localStorage.getItem('user'))?.id;
-      const current = sRes.data.find(s => s.student?.user?._id === studentId);
+      const studentId = user?.id || user?._id;
+      const current = sRes.data.find(s => s.student?.user?._id === studentId || s.student?._id === studentId);
       setMySubscription(current);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch transport data');
     } finally {
       setLoading(false);

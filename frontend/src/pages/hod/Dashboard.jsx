@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { FiBookOpen, FiBell, FiUsers, FiGrid, FiCalendar } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import AttendanceChart from '../../components/analytics/AttendanceChart';
 
 export default function HODDashboard() {
   const { user } = useAuth();
@@ -10,8 +12,13 @@ export default function HODDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/hod/dashboard').then(({ data }) => setData(data)).catch(() => {}).finally(() => setLoading(false));
+    api.get('/hod/dashboard')
+      .then(({ data }) => setData(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) return <LoadingSpinner label="Loading dashboard..." />;
 
   const dept = data?.department;
   const stats = data?.stats ?? {};
@@ -52,22 +59,34 @@ export default function HODDashboard() {
         ))}
       </div>
 
+      {/* Attendance Chart */}
+      {data?.attendanceStats?.length > 0 && (
+        <AttendanceChart 
+          data={data.attendanceStats} 
+          title="Department Attendance Performance" 
+          color="emerald"
+        />
+      )}
+
       {/* Quick access */}
       <div>
         <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Quick Access</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {quickLinks.map(({ to, label, icon: Icon, color, count }) => (
-            <Link key={to} to={to}
-              className="group flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm transition hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white shadow`}>
-                <Icon className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-900 dark:text-white">{label}</p>
-                {count !== null && count !== undefined && <p className="text-sm text-slate-500 dark:text-slate-400">{count} records</p>}
-              </div>
-            </Link>
-          ))}
+          {quickLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link key={link.to} to={link.to}
+                className="group flex items-center gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm transition hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${link.color} text-white shadow`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">{link.label}</p>
+                  {link.count !== null && link.count !== undefined && <p className="text-sm text-slate-500 dark:text-slate-400">{link.count} records</p>}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

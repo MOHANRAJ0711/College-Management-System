@@ -43,19 +43,19 @@ export default function Profile() {
       ...prev,
       name: user.name ?? '',
       email: user.email ?? '',
-      phone: user.phone ?? user.phoneNumber ?? '',
-      dateOfBirth: toInputDate(user.dateOfBirth ?? user.dob),
-      bloodGroup: user.bloodGroup ?? user.blood_group ?? '',
-      gender: user.gender ?? '',
-      addressLine1: user.addressLine1 ?? user.address?.line1 ?? '',
-      addressLine2: user.addressLine2 ?? user.address?.line2 ?? '',
-      city: user.city ?? user.address?.city ?? '',
-      state: user.state ?? user.address?.state ?? '',
-      postalCode: user.postalCode ?? user.pincode ?? user.address?.postalCode ?? '',
-      country: user.country ?? user.address?.country ?? '',
-      guardianName: user.guardianName ?? user.guardian?.name ?? '',
-      guardianPhone: user.guardianPhone ?? user.guardian?.phone ?? '',
-      guardianRelation: user.guardianRelation ?? user.guardian?.relation ?? '',
+      phone: user.studentProfile?.phone ?? '',
+      dateOfBirth: toInputDate(user.studentProfile?.dateOfBirth),
+      bloodGroup: user.studentProfile?.bloodGroup ?? '',
+      gender: user.studentProfile?.gender ?? '',
+      addressLine1: user.studentProfile?.address?.street ?? '',
+      addressLine2: '',
+      city: user.studentProfile?.address?.city ?? '',
+      state: user.studentProfile?.address?.state ?? '',
+      postalCode: user.studentProfile?.address?.pincode ?? '',
+      country: '',
+      guardianName: user.studentProfile?.guardianName ?? '',
+      guardianPhone: user.studentProfile?.guardianPhone ?? '',
+      guardianRelation: '',
     }));
   }, [user]);
 
@@ -117,20 +117,20 @@ export default function Profile() {
     try {
       await updateProfile({
         name: form.name,
-        email: form.email,
-        phone: form.phone,
-        dateOfBirth: form.dateOfBirth || undefined,
-        bloodGroup: form.bloodGroup || undefined,
-        gender: form.gender || undefined,
-        addressLine1: form.addressLine1,
-        addressLine2: form.addressLine2,
-        city: form.city,
-        state: form.state,
-        postalCode: form.postalCode,
-        country: form.country,
-        guardianName: form.guardianName,
-        guardianPhone: form.guardianPhone,
-        guardianRelation: form.guardianRelation,
+        studentProfile: {
+          phone: form.phone,
+          dateOfBirth: form.dateOfBirth || undefined,
+          bloodGroup: form.bloodGroup || undefined,
+          gender: form.gender || undefined,
+          address: {
+            street: form.addressLine1,
+            city: form.city,
+            state: form.state,
+            pincode: form.postalCode,
+          },
+          guardianName: form.guardianName,
+          guardianPhone: form.guardianPhone,
+        }
       });
       toast.success('Profile updated successfully');
     } catch (err) {
@@ -163,6 +163,14 @@ export default function Profile() {
         <p className="mt-1 text-sm text-slate-600">
           Manage your personal details. Academic identifiers are maintained by the office.
         </p>
+        {user?.role === 'student' && user?.studentProfile?.isProfileComplete === false && (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
+            <strong className="block font-semibold">Action Required: Complete Your Profile</strong>
+            <p className="mt-1">
+              Please provide your complete <b>Date of Birth</b>, <b>Gender</b>, <b>Phone Number</b>, <b>Full Address</b>, and <b>Guardian Details</b> to access your dashboard.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-indigo-600 to-blue-700 p-6 text-white shadow-lg sm:p-8">

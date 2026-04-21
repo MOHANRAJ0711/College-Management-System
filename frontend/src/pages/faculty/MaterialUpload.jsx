@@ -33,7 +33,7 @@ export default function MaterialUpload() {
       ]);
       setMaterials(mRes.data);
       setCourses(cRes.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch learning materials');
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ export default function MaterialUpload() {
       setShowModal(false);
       setForm({ title: '', subject: '', fileType: 'pdf', fileUrl: '', description: '', targetSemester: 1 });
       fetchData();
-    } catch (err) {
+    } catch {
       toast.error('Deployment failed');
     }
   };

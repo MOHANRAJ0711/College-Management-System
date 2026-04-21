@@ -26,11 +26,7 @@ function unwrapList(res) {
   return [];
 }
 
-function deptName(d) {
-  if (!d) return '';
-  if (typeof d === 'string') return d;
-  return d.name ?? d.title ?? '';
-}
+
 
 export default function FaceAttendance() {
   const [step, setStep] = useState(STEP.SELECT);
@@ -130,12 +126,16 @@ export default function FaceAttendance() {
   const startWebcam = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 1280, height: 720 },
+        video: { 
+          facingMode: { ideal: 'environment' }, 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        },
       });
       streamRef.current = stream;
-      if (videoRef.current) videoRef.current.srcObject = stream;
       setWebcamActive(true);
-    } catch {
+    } catch (err) {
+      console.error('Camera access error:', err);
       toast.error('Could not access camera');
     }
   };
@@ -158,6 +158,12 @@ export default function FaceAttendance() {
     streamRef.current = null;
     setWebcamActive(false);
   };
+
+  useEffect(() => {
+    if (webcamActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [webcamActive]);
 
   useEffect(() => () => stopWebcam(), []);
 

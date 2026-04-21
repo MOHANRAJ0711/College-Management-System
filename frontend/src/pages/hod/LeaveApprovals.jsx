@@ -1,39 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { 
   FiCheck, FiX, FiInfo, FiUser, FiCalendar, FiFileText
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LeaveApprovals() {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  const { user } = useAuth();
 
-  useEffect(() => {
-    fetchLeaves();
-  }, []);
-
-  const fetchLeaves = async () => {
+  const fetchLeaves = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const endpoint = user.isHOD ? '/leave/department' : '/leave/all';
       const res = await api.get(endpoint);
       setLeaves(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch leave requests');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchLeaves();
+  }, [fetchLeaves]);
 
   const handleAction = async (id, status) => {
     try {
       await api.patch(`/leave/${id}`, { status });
       toast.success(`Leave ${status.replace('-', ' ')}`);
       fetchLeaves();
-    } catch (err) {
+    } catch {
       toast.error('Action failed');
     }
   };

@@ -66,11 +66,18 @@ const buildStudentFilter = async (query, user) => {
   if (search && String(search).trim()) {
     const term = String(search).trim();
     const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    
+    // Find users by name or email
     const matchingUsers = await User.find({
       role: 'student',
       $or: [{ name: regex }, { email: regex }],
     }).distinct('_id');
-    filter.user = { $in: matchingUsers };
+
+    // Combine user matches with direct rollNumber matches on the Student profile
+    filter.$or = [
+      { user: { $in: matchingUsers } },
+      { rollNumber: regex }
+    ];
   }
 
   if (includeInactive !== 'true' && includeInactive !== '1') {

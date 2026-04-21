@@ -6,6 +6,7 @@ const Course = require('../../../models/Course');
 const Admission = require('../../../models/Admission');
 const Notification = require('../../../models/Notification');
 const Fee = require('../../../models/Fee');
+const Attendance = require('../../../models/Attendance');
 
 const handleError = (res, err, defaultMsg = 'Server error') => {
   if (err.name === 'ValidationError') {
@@ -29,6 +30,7 @@ const getAdminDashboard = async (req, res) => {
       pendingAdmissions,
       recentNotifications,
       feeAgg,
+      attendanceSummary,
     ] = await Promise.all([
       Student.countDocuments(),
       Faculty.countDocuments(),
@@ -48,9 +50,49 @@ const getAdminDashboard = async (req, res) => {
           $group: {
             _id: '$status',
             count: { $sum: 1 },
-            totalAmount: { $sum: '$amount' },
           },
         },
+      ]),
+      Attendance.aggregate([
+        {
+          $lookup: {
+            from: 'students',
+            localField: 'student',
+            foreignField: '_id',
+            as: 'studentInfo',
+          },
+        },
+        { $unwind: '$studentInfo' },
+        {
+          $lookup: {
+            from: 'departments',
+            localField: 'studentInfo.department',
+            foreignField: '_id',
+            as: 'deptInfo',
+          },
+        },
+        { $unwind: '$deptInfo' },
+        {
+          $group: {
+            _id: '$deptInfo._id',
+            department: { $first: '$deptInfo.name' },
+            departmentCode: { $first: '$deptInfo.code' },
+            total: { $sum: 1 },
+            attended: {
+              $sum: { $cond: [{ $in: ['$status', ['present', 'late']] }, 1, 0] },
+            },
+          },
+        },
+        {
+          $project: {
+            department: 1,
+            departmentCode: 1,
+            averageAttendance: {
+              $cond: [{ $gt: ['$total', 0] }, { $multiply: [{ $divide: ['$attended', '$total'] }, 100] }, 0],
+            },
+          },
+        },
+        { $sort: { averageAttendance: -1 } },
       ]),
     ]);
 
@@ -90,6 +132,7 @@ const getAdminDashboard = async (req, res) => {
           partialAmount: partialStats.totalAmount,
         },
       },
+      attendanceSummary,
     });
   } catch (err) {
     return handleError(res, err, 'Could not load admin dashboard');

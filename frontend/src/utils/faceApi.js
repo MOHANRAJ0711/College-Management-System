@@ -36,7 +36,7 @@ export async function detectAllFaces(imageElement) {
   return detections;
 }
 
-export function matchFaces(unknownDescriptors, knownFaces, threshold = 0.55) {
+export function matchFaces(unknownDescriptors, knownFaces, threshold = 0.6) {
   const labeledDescriptors = knownFaces
     .filter((f) => f.descriptor)
     .map(
@@ -93,7 +93,9 @@ export function drawDetections(canvas, imageElement, results) {
     ctx.lineWidth = 2;
     ctx.strokeRect(resizedBox.x, resizedBox.y, resizedBox.width, resizedBox.height);
 
-    const label = r.matched ? r.studentInfo?.name ?? 'Matched' : 'Unknown';
+    const distLabel = ` (${r.distance.toFixed(2)})`;
+    const label = (r.matched ? r.studentInfo?.name ?? 'Matched' : 'Unknown') + distLabel;
+    
     ctx.fillStyle = r.matched ? '#22c55e' : '#ef4444';
     const fontSize = Math.max(12, Math.min(16, resizedBox.width / 6));
     ctx.font = `bold ${fontSize}px sans-serif`;

@@ -9,15 +9,17 @@ import {
   FiClock,
   FiDollarSign,
   FiFileText,
+  FiTrendingUp,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import StatsCard from '../../components/common/StatsCard';
+  // eslint-disable-next-line
 import { apiError, formatCurrency, formatDate, formatDateTime } from './utils';
 
-function normalizePayload(raw) {
+function normalizePayload(raw, personalResults = []) {
   const d = raw?.data ?? raw;
   if (!d || typeof d !== 'object') return null;
   const stats = d.stats ?? d;
@@ -46,6 +48,7 @@ function normalizePayload(raw) {
         `Course ${i + 1}`,
       percent: Number(row.percent ?? row.percentage ?? row.value ?? row.attendance ?? 0),
     })),
+    recentResult: personalResults.length > 0 ? personalResults[0] : null,
   };
 }
 
@@ -61,8 +64,13 @@ export default function Dashboard() {
       setLoading(true);
       setError('');
       try {
-        const { data: res } = await api.get('/students/dashboard');
-        if (!cancelled) setData(normalizePayload(res));
+        const [dashRes, resultsRes] = await Promise.all([
+          api.get('/students/dashboard'),
+          api.get('/result-upload/my-results')
+        ]);
+        if (!cancelled) {
+          setData(normalizePayload(dashRes.data, resultsRes.data));
+        }
       } catch (e) {
         if (!cancelled) {
           setError(apiError(e));
@@ -164,6 +172,48 @@ export default function Dashboard() {
           ))}
         </div>
       </section>
+
+      {data?.recentResult && (
+        <section className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 shadow-sm sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+                <FiTrendingUp className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">New Result Published</h2>
+                <p className="text-sm text-slate-600">{data.recentResult.title}</p>
+              </div>
+            </div>
+            <Link
+              to="/student/results"
+              className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-indigo-600 shadow-sm ring-1 ring-indigo-100 transition hover:bg-indigo-50"
+            >
+              View Full Report
+            </Link>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Score</p>
+              <p className="mt-0.5 text-xl font-bold text-indigo-700">{data.recentResult.result?.cgpa || data.recentResult.result?.marks || '—'}</p>
+            </div>
+            <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Grade</p>
+              <p className="mt-0.5 text-xl font-bold text-slate-900">{data.recentResult.result?.grade || '—'}</p>
+            </div>
+            <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
+              <p className={`mt-0.5 text-xl font-bold ${data.recentResult.result?.status === 'Fail' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                {data.recentResult.result?.status || 'Pass'}
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Semester</p>
+              <p className="mt-0.5 text-xl font-bold text-slate-900">{data.recentResult.semester || '—'}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

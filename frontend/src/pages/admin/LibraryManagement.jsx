@@ -63,6 +63,7 @@ export default function LibraryManagement() {
   });
   const [studentQuery, setStudentQuery] = useState('');
   const [studentHits, setStudentHits] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [issuing, setIssuing] = useState(false);
 
   const [returnModal, setReturnModal] = useState(null);
@@ -154,21 +155,35 @@ export default function LibraryManagement() {
     }
   };
 
-  const searchStudents = async () => {
-    if (!studentQuery.trim()) {
-      toast.warn('Enter student name or roll number.');
+  useEffect(() => {
+    const term = studentQuery.trim();
+    if (term.length < 2) {
+      setStudentHits([]);
+      setShowDropdown(false);
       return;
     }
-    try {
-      const { data } = await api.get('/students', {
-        params: { search: studentQuery.trim(), limit: 15 },
-      });
-      const list = Array.isArray(data) ? data : data?.students ?? data?.data ?? [];
-      setStudentHits(list);
-      if (list[0]) setIssueForm((f) => ({ ...f, studentId: String(list[0]._id ?? list[0].id) }));
-    } catch (e) {
-      toast.error(errMsg(e));
-    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const { data } = await api.get('/students', {
+          params: { search: term, limit: 10 },
+        });
+        const list = Array.isArray(data) ? data : data?.students ?? data?.data ?? [];
+        setStudentHits(list);
+        setShowDropdown(list.length > 0);
+      } catch (e) {
+        console.error('Search failed', e);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [studentQuery]);
+
+  const selectStudent = (student) => {
+    setIssueForm((f) => ({ ...f, studentId: String(student._id ?? student.id) }));
+    setStudentQuery(`${student.user?.name ?? student.name} (${student.rollNumber ?? 'N/A'})`);
+    setShowDropdown(false);
+    setStudentHits([]);
   };
 
   const issueBook = async (e) => {
@@ -407,40 +422,37 @@ export default function LibraryManagement() {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="relative">
               <label className="text-xs font-semibold text-slate-600">Find student</label>
-              <div className="mt-1 flex gap-2">
+              <div className="mt-1 relative">
                 <input
                   value={studentQuery}
-                  onChange={(e) => setStudentQuery(e.target.value)}
-                  placeholder="Name or roll number"
+                  onChange={(e) => {
+                    setStudentQuery(e.target.value);
+                    if (!e.target.value) setIssueForm(f => ({ ...f, studentId: '' }));
+                  }}
+                  onFocus={() => studentHits.length > 0 && setShowDropdown(true)}
+                  placeholder="Type name or roll number…"
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20"
                 />
-                <button
-                  type="button"
-                  onClick={searchStudents}
-                  className="shrink-0 rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                >
-                  <FiSearch className="h-4 w-4" />
-                </button>
+                
+                {showDropdown && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl animate-modal-in">
+                    {studentHits.map((s) => (
+                      <button
+                        key={s._id ?? s.id}
+                        type="button"
+                        onClick={() => selectStudent(s)}
+                        className="flex w-full flex-col items-start px-4 py-2.5 text-left transition hover:bg-indigo-50"
+                      >
+                        <span className="text-sm font-bold text-slate-900">{s.user?.name ?? s.name}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-slate-400">Roll: {s.rollNumber ?? '—'} · Email: {s.user?.email ?? '—'}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            {studentHits.length > 0 ? (
-              <div>
-                <label className="text-xs font-semibold text-slate-600">Student</label>
-                <select
-                  value={issueForm.studentId}
-                  onChange={(e) => setIssueForm((f) => ({ ...f, studentId: e.target.value }))}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                >
-                  {studentHits.map((s) => (
-                    <option key={s._id ?? s.id} value={String(s._id ?? s.id)}>
-                      {s.name} ({s.rollNumber ?? s.roll})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
             <div>
               <label className="text-xs font-semibold text-slate-600">Due date</label>
               <input

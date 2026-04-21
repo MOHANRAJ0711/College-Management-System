@@ -1,0 +1,326 @@
+pages=7
+
+--- PAGE 1 size=(612.0,792.0) ---
+ 
+ANNA UNIVERSITY :: CHENNAI 600 025  
+ 
+ 
+ 
+ 
+FORMAT   FOR   PREPARATION   OF   PROJECT   REPORT  
+ 
+FOR 
+ 
+B.E. / B. TECH. / B. ARCH.  
+ 
+ 
+ 
+1. ARRANGEMENT OF CONTENTS:  
+ 
+The sequence in which the project report material should be arranged and bound should be as 
+follows: 
+ 
+ 
+1. Cover Page & Title Page 
+2. Bonafide Certificate 
+3. Abstract 
+4. Table of Contents 
+5. List of Tables 
+6. List of Figures 
+7. List of Symbols, Abbreviations and Nomenclature  
+8. Chapters 
+9. Appendices 
+10. References 
+ 
+The table and figures shall be introduced in the appropriate places.  
+ 
+2. PAGE DIMENSION AND BINDING SPECIFICATIONS:  
+ 
+The dimension of the project report should be in A4 size.   The project report should be 
+bound using flexible cover of the thick white art paper.  The cover should be  printed in 
+black letters and the text for printing should be identical.  
+ 
+3. PREPARATION FORMAT:  
+ 
+3.1 Cover Page & Title Page – A specimen copy of the Cover page & Title page of the   project   
+report are given in Appendix 1. 
+ 
+3.2 Bonafide Certificate – The Bonafide Certificate shall be in double line spac ing using Font 
+Style Times New Roman and Font Size 14, as per the format in Appendix 2. 
+  
+ The certificate shall carry the supervisor’s signature and shall be followed by the supervisor’s 
+name, academic designation (not any other responsibilities of admini strative nature), 
+
+--- PAGE 2 size=(612.0,792.0) ---
+department and full address of the institution where the supervisor has guided the student. 
+The term ‘SUPERVISOR’ must be typed in capital letters between the supervisor’s name 
+and academic designation. 
+ 
+3.3 Abstract – Abstract should be one page synopsis of the project report typed double line 
+spacing, Font Style Times New Roman and Font Size 14.  
+ 
+3.4 Table of Contents – The table of contents should list all material following it as well as any 
+material which precedes it. The title page a nd Bonafide Certificate will not find a place 
+among the items listed in the Table of Contents but the page numbers of which are in lower 
+case Roman letters. One and a half spacing should be adopted for typing the matter under this 
+head. A specimen copy of the Table of Contents of the project report is given in Appendix 3. 
+ 
+3.5 List of Tables – The list should use exactly the same captions as they appear above the 
+tables in the text. One and a half spacing should be adopted for typing the matter under this 
+head. 
+ 
+3.6 List of Figures – The list should use exactly the same captions as they appear below the 
+figures in the text. One and a half spacing should be adopted for typing the matter under this 
+head. 
+ 
+3.7 List of Symbols, Abbreviations and Nomenclature – One and a half spacing should be 
+adopted or typing the matter under this head. Standard symbols, abbreviations etc. should be 
+used. 
+ 
+3.8 Chapters  – The chapters may be broadly divided into 3 parts  (i)  Introductory  chapter,   (ii) 
+Chapters developing the main theme of the project work  (iii) and Conclusion.  
+ 
+ The main text will be divided into several chapters and each chapter may be further divided 
+into several divisions and sub-divisions. 
+ 
+ Each chapter should be given an appropriate title.  
+ Tables and fi gures in a chapter should be placed in the immediate vicinity of the 
+reference where they are cited.  
+ 
+ Footnotes should be used sparingly. They should be typed single space and placed 
+directly underneath in the very same page, which refers to the material t hey annotate. 
+ 
+3.9 Appendices – Appendices are provided to give supplementary information, which is 
+included in the main text may serve as a distraction and cloud the central theme.  
+ 
+ Appendices should be numbered using Arabic numerals, e.g. Appendix 1, App endix 
+2, etc. 
+ Appendices, Tables and References appearing in appendices should be numbered and 
+referred to at appropriate places just as in the case of chapters.  
+ 
+ Appendices shall carry the title of the work reported and the same title shall be made 
+in the contents page also. 
+
+--- PAGE 3 size=(612.0,792.0) ---
+ 
+ 
+3.10 List of References –The listing of references should be typed 4 spaces below the heading 
+“REFERENCES” in alphabetical order in single spacing left – justified. The reference 
+material should be listed in the alphabetical order of  the first author. The name of the 
+author/authors should be immediately followed by the year and other details.  
+ 
+A typical illustrative list given below relates to the citation example quoted above.  
+ 
+ 
+REFERENCES 
+ 
+ 
+ 
+ 
+1. Ariponnammal, S. and Natarajan, S. ( 1994) ‘Transport Phonomena of Sm Sel – X 
+Asx’, Pramana – Journal of Physics Vol.42, No.1, pp.421 -425. 
+ 
+2. Barnard, R.W. and Kellogg, C. (1980) ‘Applications of Convolution Operators to 
+Problems in Univalent Function Theory’, Michigan Mach, J., Vol.27, pp.8 1–94. 
+ 
+3. Shin, K.G. and Mckay, N.D. (1984) ‘Open Loop Minimum Time Control of 
+Mechanical Manipulations and its Applications’, Proc.Amer.Contr.Conf., San Diego, 
+CA, pp. 1231-1236. 
+ 
+ 
+3.10.1 Table and figures - By the word Table, is meant tabulated numerical data i n the body of the 
+project report as well as in the appendices.  All other non -verbal materials used in the body of 
+the project work and appendices such as charts, graphs, maps, photographs and diagrams 
+may be designated as figures. 
+ 
+ 
+4. TYPING INSTRUCTIONS: 
+                                                                                                                                                                                                                                                                                                                                                                                                                    
+ The impression on the typed copies should be black in colour.  
+ 
+ One and a half spacing should be used fo r typing the general text. The general text shall be 
+typed in the Font style ‘Times New Roman’ and Font size 14.  
+   
+ 
+* * * * * 
+     
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- PAGE 4 size=(612.0,792.0) ---
+ 
+APPENDIX 1 
+(A typical Specimen of Cover Page & Title Page)  
+<Font Style Times New Roman – Bold> 
+ 
+ 
+TITLE OF PROJECT REPORT 
+<Font Size 18><1.5 line spacing>  
+ 
+A PROJECT REPORT 
+<Font Size 14> 
+ 
+Submitted by  
+<Font Size 14><Italic> 
+ 
+NAME OF THE CANDIDATE(S)  
+<Font Size 16> 
+ 
+ 
+in partial fulfillment for the award of the degree 
+ 
+of  
+ 
+<Font Size 14><1.5 line spacing><Italic>  
+ 
+NAME OF THE DEGREE  
+<Font Size 16> 
+ 
+IN 
+ 
+BRANCH OF STUDY 
+<Font Size 14> 
+ 
+ 
+NAME OF THE COLLEGE 
+<Font Size 14> 
+ 
+ 
+ANNA UNIVERSITY : CHENNAI 600 025  
+<Font Size 16><1.5 line spacing>  
+ 
+MONTH & YEAR 
+<Font Size 14> 
+
+--- PAGE 5 size=(612.0,792.0) ---
+ 
+SPECIMEN 
+ 
+ 
+SOME PERFORMANCE ASPECTS CONSIDERATIONS OF 
+A CLASS OF ARTIFICIAL NEURAL NETWORK 
+ 
+ 
+A PROJECT REPORT 
+ 
+ 
+Submitted by  
+ 
+SANDHYA. A 
+ 
+GAYATHRI.R 
+ 
+ 
+ 
+in  partial  fulfillment  for  the  award  of  the  degree 
+ 
+of  
+ 
+BACHELOR OF ENGINEERING  
+ 
+in 
+ 
+ INSTRUMENTATION AND CONTROL ENGINEERING 
+ 
+ 
+ 
+ 
+XXX ENGINEERING COLLEGE, KANCHEEPURAM 
+ 
+ 
+ANNA UNIVERSITY:: CHENNAI 600 025  
+ 
+ 
+MAY 2005 
+ 
+ 
+
+--- PAGE 6 size=(612.0,792.0) ---
+ 
+ 
+ 
+ 
+APPENDIX 2 
+(A typical specimen of Bonafide Certificate)  
+<Font Style Times New Roman>  
+ 
+ 
+ANNA UNIVERSITY : CHENNAI 600 025 
+<Font Style Times New Roman – size -18> 
+ 
+ 
+ 
+BONAFIDE CERTIFICATE  
+<Font Style Times New Roman – size -16> 
+ 
+<Font Style Times New Roman – size -14> 
+ 
+Certified that this project report “……….TITLE OF THE PROJECT……………..” 
+is the bonafide work of “ …………..NAME OF THE CANDIDATE(S).…………”                                            
+who carried out the project work under my supervision.  
+ 
+<<Signature of the Head of the Department>>                       <<Signature of the Supervisor>>  
+  SIGNATURE         SIGNATURE 
+ 
+  <<Name>>        <<Name>>    
+ HEAD OF THE DEPARTMENT       SUPERVISOR 
+     
+                                                          <<Academic Designation>>  
+ 
+<<Department>>                  <<Department>> 
+ 
+<<Full address of the Dept & College >>              <<Full address of the Dept & College >>  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- PAGE 7 size=(612.0,792.0) ---
+APPENDIX 3 
+(A typical specimen of table of contents)  
+<Font Style Times New Roman>  
+ 
+ 
+TABLE OF CONTENTS 
+ 
+ 
+CHAPTER NO.    TITLE    PAGE NO. 
+ 
+                                               ABSTRACT                                                                          iii            
+                                               LIST OF TABLE                                                                xvi  
+                                               LIST OF FIGURES                                                           xviii 
+                                               LIST OF SYMBOLS                                                        xxvii  
+ 
+ 
+         1.                                 INTRODUCTION                                                                  1 
+ 
+                                        1.1 GENERAL                                                                 1  
+                                              1.2         . . . .  . . . . . . . . .                                                          2 
+            1.2.1     General                                                       5  
+                                    1.2.2     . . . . . . . . . . .                                                12  
+                                                  1.2.2.1 General                                            19  
+                                                                          1.2.2.2  . . . . . . . . . .                                     25       
+                                      1.2.2.3  . . . . . . . . . .                                     29  
+                        1.2.3    . . . . . . . . . . . .                                                30  
+                                            1.3 . . . . . . . . . . .. . . . . . .                                                 45  
+                                            1.4 . . . . . . . . . . . . . . . . . .                                                58  
+          2.                                 LITERATURE REVIEW                                                     69 
+                                      2.1 GENERAL                                                                 75  
+2.2 . . . . . . . . . .                                                     99  
+2.2       …………….                                                 100  
+ 
+ 
+ 
+ 
+ 
+ 
+ 

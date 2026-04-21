@@ -15,6 +15,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 
 const loadDashboard = (name) =>
@@ -93,6 +95,7 @@ const AdminLeaveApprovals = lazy(() => import('./pages/hod/LeaveApprovals.jsx'))
 const AdminPayroll = lazy(() => import('./pages/admin/PayrollManagement.jsx'));
 const AdminScholarship = lazy(() => import('./pages/admin/ScholarshipManagement.jsx'));
 const AdminEvents = lazy(() => import('./pages/admin/EventApprovals.jsx'));
+const AdminProfile = lazy(() => import('./pages/admin/Profile.jsx'));
 
 function DashboardFallback() {
   return (
@@ -114,6 +117,8 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
           </Route>
 
           {/* Student */}
@@ -170,6 +175,7 @@ export default function App() {
             <Route path="timetable" element={<HODTimetable />} />
             <Route path="notifications" element={<HODNotifications />} />
             <Route path="leave-approvals" element={<HODLeaveApprovals />} />
+            <Route path="profile" element={<FacultyProfile />} />
           </Route>
 
           {/* Admin */}
@@ -198,6 +204,7 @@ export default function App() {
             <Route path="scholarship" element={<AdminScholarship />} />
             <Route path="events" element={<AdminEvents />} />
             <Route path="result-upload" element={<AdminResultUpload />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
 
           <Route path="*" element={<><Navbar /><NotFound /></>} />

@@ -2,6 +2,7 @@ const pdfParse = require('pdf-parse');
 const XLSX = require('xlsx');
 const ResultBatch = require('../../../models/ResultBatch');
 const Notification = require('../../../models/Notification');
+const Student = require('../../../models/Student');
 const handleError = require('../../../utils/handleError');
 
 /**
@@ -272,11 +273,42 @@ const saveResultBatch = async (req, res) => {
       pdfPages,
     });
 
-    // Optionally create a broadcast notification for students in the department
-    if (notifyStudents && department) {
+    // Create targeted notifications for students found in the batch
+    if (notifyStudents && students.length > 0) {
+      const rollNumbers = students.map(s => s.rollNumber).filter(Boolean);
+      
+      // Find matching student records to get their User IDs
+      const matchingStudents = await Student.find({ 
+        rollNumber: { $in: rollNumbers } 
+      }).select('user rollNumber').lean();
+
+      if (matchingStudents.length > 0) {
+        const notificationPromises = matchingStudents.map(async (s) => {
+          const studentResult = students.find(rs => rs.rollNumber === s.rollNumber);
+          const gpaText = studentResult?.cgpa ? ` (CGPA: ${studentResult.cgpa})` : '';
+          
+          return Notification.create({
+            title: `Your Result Published: ${title}`,
+            message: `Your specific results for "${title}" are now available${gpaText}. Click to view details.`,
+            type: 'exam',
+            targetRole: 'student',
+            recipient: s.user, // Target individual student
+            createdBy: req.user._id,
+            meta: { 
+              batchId: batch._id, 
+              type: 'result',
+              rollNumber: s.rollNumber 
+            },
+            isActive: true,
+          });
+        });
+        await Promise.all(notificationPromises);
+      }
+
+      // Also create a department-wide general notification
       await Notification.create({
-        title: `Result Published: ${title}`,
-        message: `Results for "${title}" have been published. Check your student portal for details.`,
+        title: `Results Published: ${title}`,
+        message: `The full results for "${title}" have been released for the ${department || 'department'}.`,
         type: 'exam',
         targetRole: 'student',
         createdBy: req.user._id,
@@ -429,6 +461,42 @@ const downloadResultExcel = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/result-upload/my-results — fetch results for the logged-in student
+ */
+const getMyResults = async (req, res) => {
+  try {
+    const student = await Student.findOne({ user: req.user._id }).select('rollNumber');
+    if (!student || !student.rollNumber) {
+      return res.status(404).json({ message: 'Student profile or roll number not found' });
+    }
+
+    // Find all batches where this student's roll number exists
+    const batches = await ResultBatch.find({
+      'students.rollNumber': student.rollNumber
+    }).sort({ createdAt: -1 }).lean();
+
+    // Map batches to extract only the relevant student's result
+    const personalResults = batches.map(batch => {
+      const myData = batch.students.find(s => s.rollNumber === student.rollNumber);
+      return {
+        batchId: batch._id,
+        title: batch.title,
+        description: batch.description,
+        subject: batch.subject,
+        semester: batch.semester,
+        academicYear: batch.academicYear,
+        date: batch.createdAt,
+        result: myData
+      };
+    });
+
+    return res.status(200).json(personalResults);
+  } catch (err) {
+    return handleError(res, err, 'Failed to fetch personal results');
+  }
+};
+
 module.exports = {
   uploadResultPDF,
   saveResultBatch,
@@ -436,4 +504,5 @@ module.exports = {
   getResultBatch,
   deleteResultBatch,
   downloadResultExcel,
+  getMyResults,
 };

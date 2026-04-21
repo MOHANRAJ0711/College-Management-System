@@ -40,7 +40,7 @@ export default function FacultyFeedback() {
       ]);
       setFaculties(fRes.data);
       setCourses(cRes.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load faculty directory');
     } finally {
       setLoading(false);

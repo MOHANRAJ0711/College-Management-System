@@ -1,4 +1,4 @@
-export default function LoadingSpinner({ className = '', label = 'Loading…' }) {
+export default function LoadingSpinner({ className = '', label = 'Loading...' }) {
   return (
     <div
       className={`flex flex-col items-center justify-center gap-3 ${className}`}

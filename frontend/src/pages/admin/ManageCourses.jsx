@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/common/Modal';
@@ -74,6 +74,9 @@ export default function ManageCourses() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
 
   const loadDepartments = useCallback(async () => {
     try {
@@ -183,6 +186,21 @@ export default function ManageCourses() {
     }
   };
 
+  const confirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/courses/${deleteTarget.id}`);
+      toast.success('Course deleted');
+      setDeleteTarget(null);
+      await loadCourses();
+    } catch (err) {
+      toastApiError(err, 'Could not delete course');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const columns = [
     { key: 'code', label: 'Code' },
     { key: 'name', label: 'Name', render: (v, row) => v ?? row.title ?? '—' },
@@ -274,6 +292,7 @@ export default function ManageCourses() {
           }))}
           loading={loading}
           onEdit={openEdit}
+          onDelete={(row) => setDeleteTarget(row)}
           emptyMessage="No courses match your filters."
         />
       )}
@@ -370,6 +389,35 @@ export default function ManageCourses() {
             </button>
           </div>
         </form>
+      </Modal>
+      <Modal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => !deleting && setDeleteTarget(null)}
+        title="Delete course?"
+        size="sm"
+      >
+        <p className="text-sm text-slate-600">
+          Remove <span className="font-semibold text-slate-900">{deleteTarget?.code} - {deleteTarget?.name}</span>{' '}
+          from the catalog?
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            disabled={deleting}
+            onClick={() => setDeleteTarget(null)}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={deleting}
+            onClick={confirmDelete}
+            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-700 disabled:opacity-60"
+          >
+            {deleting ? 'Deleting...' : 'Delete course'}
+          </button>
+        </div>
       </Modal>
     </div>
   );

@@ -23,7 +23,8 @@ import { toast } from 'react-toastify';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
-function StatBox({ icon: Icon, label, value, color = 'indigo' }) {
+function StatBox(props) {
+  const { icon: Icon, label, value, color = 'indigo' } = props;
   const colors = {
     indigo: 'from-indigo-500 to-indigo-700 shadow-indigo-500/30',
     green: 'from-emerald-500 to-teal-600 shadow-emerald-500/30',
@@ -141,6 +142,7 @@ export default function ResultUpload() {
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save');
     } finally { setSaving(false); }
+  // eslint-disable-next-line
   }, [batchTitle, batchDept, batchSemester, batchSubject, students, analysis, file, pdfInfo, loadBatches]);
 
   const loadBatchDetail = useCallback(async (id) => {
@@ -153,7 +155,7 @@ export default function ResultUpload() {
       setFile(null);
       setShowHistory(false);
       setStatusFilter('all'); setGradeFilter('all'); setSearch('');
-    } catch (err) {
+    } catch {
       toast.error('Failed to load batch');
     }
   }, []);
@@ -165,7 +167,7 @@ export default function ResultUpload() {
       toast.success('Batch deleted');
       loadBatches();
       if (viewBatch?._id === id) { setViewBatch(null); setStudents([]); setAnalysis(null); }
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
     }
   }, [loadBatches, viewBatch]);

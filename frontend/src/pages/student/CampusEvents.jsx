@@ -29,7 +29,7 @@ export default function CampusEvents() {
     try {
       const res = await api.get('/lifecycle/event');
       setEvents(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load campus events');
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ export default function CampusEvents() {
       setShowModal(false);
       setForm({ title: '', type: 'seminar', venue: '', startDate: '', endDate: '', description: '', capacity: 100 });
       fetchEvents();
-    } catch (err) {
+    } catch {
       toast.error('Proposal failed');
     }
   };

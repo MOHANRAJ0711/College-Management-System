@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { 
   FiHome, FiCheckCircle, FiClock, FiInfo, FiMapPin, FiCreditCard
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 
 export default function StudentHostel() {
   const [hostels, setHostels] = useState([]);
@@ -12,12 +13,10 @@ export default function StudentHostel() {
   const [loading, setLoading] = useState(true);
   const [selectedHostel, setSelectedHostel] = useState('');
   const [messPreference, setMessPreference] = useState('veg');
+  const { user } = useAuth();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const [hRes, aRes] = await Promise.all([
@@ -25,19 +24,19 @@ export default function StudentHostel() {
         api.get('/hostel/allocations')
       ]);
       setHostels(hRes.data);
-      // Filter for current student's allocation (backend already handles filtering or we can do it here)
-      // Since getAllocations usually returns all for admin but we could have a specific endpoint /my-allocation
-      // For now, let's assume we filter from the broad list or the backend returns only the user's if not admin.
-      // Based on my controller, getAllocations returns all. I should probably add a student specific endpoint.
-      // Let's check the student's one specifically.
-      const current = aRes.data.find(a => a.student?.user?._id === JSON.parse(localStorage.getItem('user'))?.id);
+      const studentId = user?.id || user?._id;
+      const current = aRes.data.find(a => a.student?.user?._id === studentId || a.student?._id === studentId);
       setMyAllocation(current);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch hostel data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleRequest = async (e) => {
     e.preventDefault();

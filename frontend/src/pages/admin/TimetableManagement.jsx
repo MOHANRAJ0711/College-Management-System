@@ -37,8 +37,9 @@ function deptName(row) {
 
 export default function TimetableManagement() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
+  const [departments, setDepartments] = useState([]);
 
   const [meta, setMeta] = useState({
     department: '',
@@ -53,10 +54,23 @@ export default function TimetableManagement() {
   const [editModal, setEditModal] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (dId, sem, sec) => {
+    const targetDept = dId || meta.department;
+    if (!targetDept) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const { data } = await api.get('/timetable');
+      const { data } = await api.get('/timetable', {
+        params: { 
+          department: targetDept,
+          semester: sem !== undefined ? sem : meta.semester,
+          section: sec !== undefined ? sec : meta.section
+        }
+      });
       setEntries(normalizeEntries({ data }));
     } catch (e) {
       toast.error(errMsg(e));
@@ -64,11 +78,29 @@ export default function TimetableManagement() {
     } finally {
       setLoading(false);
     }
+  }, [meta.department, meta.semester, meta.section]);
+
+  const fetchDeps = useCallback(async () => {
+    try {
+      const { data } = await api.get('/departments');
+      setDepartments(Array.isArray(data) ? data : data?.data ?? []);
+    } catch (e) {
+      console.error('Failed to fetch departments', e);
+    }
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    fetchDeps();
+  }, [fetchDeps]);
+
+  // Handle auto-load when filters change
+  useEffect(() => {
+    if (meta.department) {
+      load();
+    } else {
+      setEntries([]);
+    }
+  }, [meta.department, meta.semester, meta.section, load]);
 
   const addPeriod = () => {
     setPeriods((p) => [...p, { timeSlot: '', course: '', faculty: '', room: '' }]);
@@ -220,12 +252,18 @@ export default function TimetableManagement() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="text-xs font-semibold text-slate-600">Department</label>
-            <input
+            <select
               value={meta.department}
               onChange={(e) => setMeta((m) => ({ ...m, department: e.target.value }))}
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20"
-              placeholder="e.g. CSE"
-            />
+            >
+              <option value="">Select Department…</option>
+              {departments.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.name} ({d.code})
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-600">Semester</label>
@@ -340,6 +378,11 @@ export default function TimetableManagement() {
           <div className="py-16">
             <LoadingSpinner label="Loading timetables…" />
           </div>
+        ) : !meta.department ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+            <FiCalendar className="h-12 w-12 mb-4 opacity-10" />
+            <p className="text-sm font-bold tracking-widest uppercase">Please select a department to view timetable</p>
+          </div>
         ) : (
           <div className="space-y-6 overflow-x-auto">
             {daysToShow.map((day) => (
@@ -415,11 +458,17 @@ export default function TimetableManagement() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="text-xs font-semibold text-slate-600">Department</label>
-                <input
-                  value={editModal.department}
+                <select
+                  value={editModal.departmentId || editModal.department}
                   onChange={(e) => setEditModal((m) => ({ ...m, department: e.target.value }))}
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                />
+                >
+                  {departments.map((d) => (
+                    <option key={d._id} value={d._id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600">Semester</label>

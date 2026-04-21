@@ -53,6 +53,7 @@ export default function Sidebar({ isOpen, onClose, className = '' }) {
           title: 'Core Insights',
           items: [
             { to: '/admin/dashboard', label: 'Control Center', icon: FiGrid },
+            { to: '/admin/profile', label: 'My Profile', icon: FiUsers },
             { to: '/admin/reports', label: 'Analytics', icon: FiBarChart2 },
           ],
         },

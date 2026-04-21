@@ -212,7 +212,8 @@ export default function Timetable() {
               <th className="sticky left-0 z-20 min-w-[100px] border-b border-r border-slate-200 px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
                 Period
               </th>
-              {DAY_LABELS.map((label, i) => (
+  // eslint-disable-next-line
+              {DAY_LABELS.map((label) => (
                 <th
                   key={label}
                   className="border-b border-slate-200 px-2 py-3 text-center text-xs font-bold uppercase tracking-wide text-slate-700"

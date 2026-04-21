@@ -5,6 +5,7 @@ const Student = require('../../../models/Student');
 const Timetable = require('../../../models/Timetable');
 const Exam = require('../../../models/Exam');
 const Notification = require('../../../models/Notification');
+const Attendance = require('../../../models/Attendance');
 
 const refId = (ref) => {
   if (!ref) return null;
@@ -378,10 +379,42 @@ const getFacultyDashboard = async (req, res) => {
       .populate('department', 'name code')
       .lean();
 
-    let studentsInDepartment = null;
     if (deptId) {
       studentsInDepartment = await Student.countDocuments({ department: deptId });
     }
+
+    const attendanceStats = await Attendance.aggregate([
+      { $match: { faculty: faculty._id } },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'course',
+          foreignField: '_id',
+          as: 'courseInfo',
+        },
+      },
+      { $unwind: '$courseInfo' },
+      {
+        $group: {
+          _id: '$course',
+          courseName: { $first: '$courseInfo.name' },
+          courseCode: { $first: '$courseInfo.code' },
+          total: { $sum: 1 },
+          attended: {
+            $sum: { $cond: [{ $in: ['$status', ['present', 'late']] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $project: {
+          label: { $concat: ['$courseCode', ' - ', '$courseName'] },
+          value: {
+            $cond: [{ $gt: ['$total', 0] }, { $multiply: [{ $divide: ['$attended', '$total'] }, 100] }, 0],
+          },
+        },
+      },
+      { $sort: { value: -1 } },
+    ]);
 
     return res.status(200).json({
       faculty,
@@ -392,6 +425,7 @@ const getFacultyDashboard = async (req, res) => {
         subjectsCount: (faculty.subjects && faculty.subjects.length) || 0,
         studentsInDepartment,
       },
+      attendanceStats,
     });
   } catch (err) {
     return handleError(res, err, 'Could not load faculty dashboard');

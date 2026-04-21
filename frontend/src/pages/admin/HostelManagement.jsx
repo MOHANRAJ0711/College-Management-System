@@ -34,7 +34,7 @@ export default function HostelManagement() {
       setHostels(hRes.data);
       setRooms(rRes.data);
       setAllocations(aRes.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ export default function HostelManagement() {
       await api.patch(`/hostel/allocations/${id}`, { status, roomId });
       toast.success('Status updated');
       fetchData();
-    } catch (err) {
+    } catch {
       toast.error('Failed to update status');
     }
   };

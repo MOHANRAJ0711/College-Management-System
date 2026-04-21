@@ -13,6 +13,7 @@ export default function TransportManagement() {
   const [activeTab, setActiveTab] = useState('routes'); // routes, subscriptions
   
   const [showRouteModal, setShowRouteModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [routeForm, setRouteForm] = useState({
     routeName: '',
     vehicleNumber: '',
@@ -36,31 +37,71 @@ export default function TransportManagement() {
       ]);
       setRoutes(rRes.data);
       setSubscriptions(sRes.data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch transport data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddRoute = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/transport', routeForm);
-      toast.success('Transport route established');
-      setShowRouteModal(false);
+  const handleOpenModal = (route = null) => {
+    if (route) {
+      setEditingId(route._id);
+      setRouteForm({
+        routeName: route.routeName,
+        vehicleNumber: route.vehicleNumber,
+        driverName: route.driverName || '',
+        driverPhone: route.driverPhone || '',
+        capacity: route.capacity,
+        fee: route.fee,
+        stops: route.stops && route.stops.length > 0 ? route.stops : [{ name: '', time: '' }]
+      });
+    } else {
+      setEditingId(null);
       setRouteForm({
         routeName: '', vehicleNumber: '', driverName: '', driverPhone: '',
         capacity: 40, fee: 5000, stops: [{ name: '', time: '' }]
       });
+    }
+    setShowRouteModal(true);
+  };
+
+  const handleSubmitRoute = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api.patch(`/transport/${editingId}`, routeForm);
+        toast.success('Transport route updated');
+      } else {
+        await api.post('/transport', routeForm);
+        toast.success('Transport route established');
+      }
+      setShowRouteModal(false);
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error adding route');
+      toast.error(err.response?.data?.message || 'Error saving route');
+    }
+  };
+
+  const handleDeleteRoute = async (id) => {
+    if (!window.confirm('Are you sure you want to decommission this route? This will affect all associated subscriptions.')) return;
+    try {
+      await api.delete(`/transport/${id}`);
+      toast.success('Route decommissioned');
+      fetchData();
+    } catch (err) {
+      toast.error('Deletion failed');
     }
   };
 
   const handleAddStop = () => {
     setRouteForm({...routeForm, stops: [...routeForm.stops, { name: '', time: '' }]});
+  };
+
+  const handleRemoveStop = (index) => {
+    if (routeForm.stops.length <= 1) return;
+    const newStops = routeForm.stops.filter((_, i) => i !== index);
+    setRouteForm({...routeForm, stops: newStops});
   };
 
   const handleStopChange = (index, field, value) => {
@@ -74,7 +115,7 @@ export default function TransportManagement() {
       await api.patch(`/transport/subscriptions/${id}`, { status });
       toast.success('Subscription updated');
       fetchData();
-    } catch (err) {
+    } catch {
       toast.error('Update failed');
     }
   };
@@ -89,7 +130,7 @@ export default function TransportManagement() {
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">Manage transport logistics, routes, and subscriptions</p>
         </div>
         <button 
-          onClick={() => setShowRouteModal(true)}
+          onClick={() => handleOpenModal()}
           className="flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-premium transition hover:bg-brand-700"
         >
           <FiPlus className="h-4 w-4" /> New Route
@@ -126,9 +167,25 @@ export default function TransportManagement() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
                     <FiTruck className="h-6 w-6" />
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none">Vehicle</p>
-                    <p className="font-bold text-sm text-slate-900 dark:text-white uppercase">{route.vehicleNumber}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right mr-4">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none">Vehicle</p>
+                      <p className="font-bold text-sm text-slate-900 dark:text-white uppercase">{route.vehicleNumber}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button 
+                        onClick={() => handleOpenModal(route)}
+                        className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                      >
+                        <FiEdit3 className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteRoute(route._id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{route.routeName}</h3>
@@ -195,8 +252,10 @@ export default function TransportManagement() {
       {showRouteModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-modal-in overflow-y-auto">
           <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-premium-xl border border-slate-200 dark:border-slate-800 my-8">
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase mb-6">New Link Path</h2>
-            <form onSubmit={handleAddRoute} className="space-y-6">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase mb-6">
+              {editingId ? 'Modify Fleet Asset' : 'New Link Path'}
+            </h2>
+            <form onSubmit={handleSubmitRoute} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Route Name</label>
@@ -236,15 +295,26 @@ export default function TransportManagement() {
                   <button type="button" onClick={handleAddStop} className="text-[10px] font-bold text-brand-600 transition hover:scale-105">+ ADD STOP</button>
                 </div>
                 {routeForm.stops.map((stop, i) => (
-                  <div key={i} className="flex gap-2 animate-modal-in">
+                  <div key={i} className="flex gap-2 animate-modal-in group">
                     <input placeholder="Stop name" value={stop.name} onChange={(e) => handleStopChange(i, 'name', e.target.value)} className="form-input" required />
                     <input type="time" value={stop.time} onChange={(e) => handleStopChange(i, 'time', e.target.value)} className="form-input w-32" required />
+                    {routeForm.stops.length > 1 && (
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveStop(i)}
+                        className="p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
 
               <div className="flex gap-3 pt-6">
-                <button type="submit" className="flex-1 bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition-colors shadow-premium">Save New Route</button>
+                <button type="submit" className="flex-1 bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition-colors shadow-premium">
+                  {editingId ? 'Update Fleet Route' : 'Save New Route'}
+                </button>
                 <button type="button" onClick={() => setShowRouteModal(false)} className="px-6 text-slate-500 font-bold hover:text-slate-700">Cancel</button>
               </div>
             </form>

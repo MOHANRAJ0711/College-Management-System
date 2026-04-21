@@ -1,11 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
-import { FiDownload, FiPlus, FiSearch } from 'react-icons/fi';
+import {
+  FiBook,
+  FiBriefcase,
+  FiCamera,
+  FiDownload,
+  FiFileText,
+  FiLoader,
+  FiMail,
+  FiMapPin,
+  FiPhone,
+  FiPlus,
+  FiRefreshCw,
+  FiSearch,
+  FiTrash2,
+  FiUser,
+} from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
+import FilterChip from '../../components/common/FilterChip';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
 
 function toastApiError(err, fallback) {
   const msg = err.response?.data?.message ?? err.message;
@@ -29,6 +46,12 @@ const emptyForm = {
   department: '',
   designation: '',
   subjects: '',
+  phone: '',
+  qualification: '',
+  specialization: '',
+  experience: '',
+  address: '',
+  avatar: '',
 };
 
 function deptName(row) {
@@ -72,6 +95,7 @@ export default function ManageFaculty() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -163,9 +187,31 @@ export default function ManageFaculty() {
     return filtered.slice(start, start + pageSize);
   }, [filtered, pageSafe]);
 
+  const startRow = filtered.length === 0 ? 0 : (pageSafe - 1) * pageSize + 1;
+  const endRow = Math.min(filtered.length, pageSafe * pageSize);
+
+  const meta = useMemo(() => {
+    const depts = new Set();
+    const designationsSet = new Set();
+    filtered.forEach((r) => {
+      const d = deptName(r);
+      if (d) depts.add(d);
+      const ds = String(r.designation ?? '').trim();
+      if (ds) designationsSet.add(ds);
+    });
+    return { departments: depts.size, designations: designationsSet.size };
+  }, [filtered]);
+
   useEffect(() => {
     setPage(1);
   }, [q, deptFilter, designationFilter]);
+
+  const hasFilters = Boolean(q.trim() || deptFilter || designationFilter);
+  const clearFilters = () => {
+    setQ('');
+    setDeptFilter('');
+    setDesignationFilter('');
+  };
 
   const openCreate = () => {
     setEditId(null);
@@ -183,10 +229,58 @@ export default function ManageFaculty() {
       departmentId: deptId(row),
       department: deptName(row),
       designation: row.designation ?? '',
+      phone: row.phone ?? '',
+      qualification: row.qualification ?? '',
+      specialization: row.specialization ?? '',
+      experience: row.experience ?? '',
+      address: row.address ?? '',
+      avatar: row.user?.avatar || row.avatar || '',
       subjects: formatSubjects(row.subjects),
     });
     setModalOpen(true);
   };
+
+  async function handleImageChange(e) {
+    const file = e.target.files?.[0];
+    if (!file || !editId) return;
+
+    if (!file.type.startsWith('image/')) {
+      return toast.error('Please select an image file');
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    try {
+      const { data } = await api.put(`/auth/users/${editId}/avatar`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setForm((f) => ({ ...f, avatar: data.avatar }));
+      toast.success('Faculty photo updated');
+      await loadFaculty();
+    } catch (err) {
+      toastApiError(err, 'Could not upload image');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleRemoveImage() {
+    if (!editId || !window.confirm('Remove faculty photo?')) return;
+
+    setUploading(true);
+    try {
+      await api.delete(`/auth/users/${editId}/avatar`);
+      setForm((f) => ({ ...f, avatar: '' }));
+      toast.success('Faculty photo removed');
+      await loadFaculty();
+    } catch (err) {
+      toastApiError(err, 'Could not remove image');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -203,6 +297,11 @@ export default function ManageFaculty() {
         password: form.password || (editId ? undefined : 'faculty123'),
         department: form.departmentId || undefined,
         designation: form.designation || undefined,
+        phone: form.phone || undefined,
+        qualification: form.qualification || undefined,
+        specialization: form.specialization || undefined,
+        experience: form.experience || undefined,
+        address: form.address || undefined,
         subjects: subjectsArr.length ? subjectsArr : undefined,
       };
       if (editId) {
@@ -237,11 +336,86 @@ export default function ManageFaculty() {
     }
   };
 
-  const exportPlaceholder = () => {
-    toast.info('Export will be available when the reporting service is connected.');
+  const handleExportExcel = () => {
+    if (filtered.length === 0) {
+      return toast.info('No data matches the current filters to export.');
+    }
+
+    const data = filtered.map((r) => ({
+      'Employee ID': r.employeeId ?? r.empId ?? '—',
+      Name: r.user?.name ?? r.name,
+      Email: r.user?.email ?? r.email,
+      Department: deptName(r),
+      Designation: r.designation ?? '—',
+      Subjects: formatSubjects(r.subjects),
+      Phone: r.phone ?? '—',
+      Qualification: r.qualification ?? '—',
+      Specialization: r.specialization ?? '—',
+      Experience: r.experience != null ? `${r.experience} years` : '—',
+      Address: r.address ?? '—',
+    }));
+
+    try {
+      exportToExcel(data, 'Faculty_Directory');
+      toast.success('Faculty directory exported to Excel');
+    } catch (err) {
+      toast.error('Failed to export data');
+      console.error(err);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (filtered.length === 0) {
+      return toast.info('No data matches the current filters to export.');
+    }
+
+    const data = filtered.map((r) => ({
+      'Employee ID': r.employeeId ?? r.empId ?? '—',
+      Name: r.user?.name ?? r.name,
+      Email: r.user?.email ?? r.email,
+      Department: deptName(r),
+      Designation: r.designation ?? '—',
+      Subjects: formatSubjects(r.subjects),
+      Phone: r.phone ?? '—',
+      Qualification: r.qualification ?? '—',
+      Specialization: r.specialization ?? '—',
+      Experience: r.experience != null ? `${r.experience} years` : '—',
+      Address: r.address ?? '—',
+    }));
+
+    try {
+      exportToCSV(data, 'Faculty_Directory');
+      toast.success('Faculty directory exported to CSV');
+    } catch (err) {
+      toast.error('Failed to export data');
+      console.error(err);
+    }
   };
 
   const columns = [
+    {
+      key: 'avatar',
+      label: 'Photo',
+      render: (v, row) => {
+        const src = v || row.user?.avatar;
+        return (
+          <div className="flex h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+            {src ? (
+              <img
+                src={`${import.meta.env.VITE_API_BASE_URL || ''}${src}`}
+                className="h-full w-full object-cover"
+                alt=""
+                onError={(e) => (e.target.style.display = 'none')}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-indigo-50 text-indigo-700 text-xs font-bold uppercase">
+                {(row.name || '?').slice(0, 1)}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
     {
       key: 'employeeId',
       label: 'Employee ID',
@@ -278,11 +452,31 @@ export default function ManageFaculty() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={exportPlaceholder}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            onClick={loadFaculty}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 disabled:opacity-50"
+            title="Refresh list"
+          >
+            <FiRefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            title="Export to Excel"
           >
             <FiDownload className="h-4 w-4" />
-            Export
+            Excel
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            title="Export to CSV"
+          >
+            <FiFileText className="h-4 w-4 text-emerald-600" />
+            CSV
           </button>
           <button
             type="button"
@@ -348,6 +542,38 @@ export default function ManageFaculty() {
         </div>
       </div>
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Filters</span>
+          {q.trim() ? <FilterChip label={`Search: ${q.trim()}`} onClear={() => setQ('')} /> : null}
+          {deptFilter ? (
+            <FilterChip label={`Department: ${deptFilter}`} onClear={() => setDeptFilter('')} />
+          ) : null}
+          {designationFilter ? (
+            <FilterChip label={`Designation: ${designationFilter}`} onClear={() => setDesignationFilter('')} />
+          ) : null}
+          {!hasFilters ? <span className="text-sm text-slate-500">None</span> : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm">
+            <span className="font-semibold text-slate-900 tabular-nums">{filtered.length}</span> total
+            <span className="text-slate-300">|</span>
+            <span className="font-semibold text-slate-900 tabular-nums">{meta.departments}</span> depts
+            <span className="text-slate-300">|</span>
+            <span className="font-semibold text-slate-900 tabular-nums">{meta.designations}</span> designations
+          </span>
+          {hasFilters ? (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50"
+            >
+              Clear all
+            </button>
+          ) : null}
+        </div>
+      </div>
+
       {loading && rows.length === 0 ? (
         <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white">
           <LoadingSpinner label="Loading faculty…" />
@@ -365,16 +591,39 @@ export default function ManageFaculty() {
           }))}
           loading={loading}
           onEdit={openEdit}
+          onRowClick={openEdit}
           onDelete={(row) => setDeleteTarget(row)}
           emptyMessage="No faculty match your filters."
+          emptyState={
+            <div className="mx-auto flex max-w-md flex-col items-center gap-2">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100">
+                <FiUser className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold text-slate-900">No faculty found</p>
+              <p className="text-sm text-slate-600">Try adjusting your search or filters.</p>
+              {hasFilters ? (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                >
+                  Clear filters
+                </button>
+              ) : null}
+            </div>
+          }
         />
       )}
 
       <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 sm:flex-row">
         <p>
-          Page <span className="font-semibold text-slate-900">{pageSafe}</span> of{' '}
-          <span className="font-semibold text-slate-900">{totalPages}</span> ·{' '}
-          <span className="tabular-nums">{filtered.length}</span> results
+          Showing{' '}
+          <span className="font-semibold text-slate-900 tabular-nums">
+            {startRow}-{endRow}
+          </span>{' '}
+          of <span className="font-semibold text-slate-900 tabular-nums">{filtered.length}</span> results · Page{' '}
+          <span className="font-semibold text-slate-900 tabular-nums">{pageSafe}</span> of{' '}
+          <span className="font-semibold text-slate-900 tabular-nums">{totalPages}</span>
         </p>
         <div className="flex items-center gap-2">
           <button
@@ -403,6 +652,63 @@ export default function ManageFaculty() {
         size="lg"
       >
         <form className="space-y-4" onSubmit={onSubmit}>
+          {editId && (
+            <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+              <div className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white ring-2 ring-slate-200 transition-all hover:ring-indigo-400">
+                {form.avatar ? (
+                  <img
+                    src={`${import.meta.env.VITE_API_BASE_URL || ''}${form.avatar}`}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-indigo-50 text-2xl font-bold text-indigo-700">
+                    {(form.name || '?').slice(0, 1)}
+                  </div>
+                )}
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  {uploading ? (
+                    <FiLoader className="h-5 w-5 animate-spin text-white" />
+                  ) : (
+                    <FiCamera className="h-5 w-5 text-white" />
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    disabled={uploading}
+                  />
+                </label>
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-bold text-slate-900">Faculty Photo</h4>
+                <p className="text-xs text-slate-500">JPG, PNG or GIF. Max 2MB.</p>
+                <div className="mt-2 flex gap-2">
+                  <label className="cursor-pointer rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-indigo-600 shadow-sm ring-1 ring-inset ring-indigo-200 hover:bg-indigo-50">
+                    {uploading ? 'Uploading...' : 'Change'}
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      disabled={uploading}
+                    />
+                  </label>
+                  {form.avatar && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      disabled={uploading}
+                      className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 hover:bg-rose-50"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="text-xs font-semibold text-slate-600">Employee ID</span>
@@ -483,16 +789,93 @@ export default function ManageFaculty() {
                 <option value="Other">Other</option>
               </select>
             </label>
+            <div className="sm:col-span-2">
+              <hr className="my-2 border-slate-100" />
+              <h3 className="mb-3 text-sm font-bold text-slate-900">Contact & profile</h3>
+            </div>
+
+            <label className="block sm:col-span-1">
+              <span className="text-xs font-semibold text-slate-600">Phone number</span>
+              <div className="relative mt-1">
+                <FiPhone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
+                />
+              </div>
+            </label>
+
+            <label className="block sm:col-span-1">
+              <span className="text-xs font-semibold text-slate-600">Address</span>
+              <div className="relative mt-1">
+                <FiMapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={form.address}
+                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
+                />
+              </div>
+            </label>
+
+            <div className="sm:col-span-2">
+              <hr className="my-2 border-slate-100" />
+              <h3 className="mb-3 text-sm font-bold text-slate-900">Academic profile</h3>
+            </div>
+
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-600">Qualification</span>
+              <div className="relative mt-1">
+                <FiBook className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={form.qualification}
+                  onChange={(e) => setForm((f) => ({ ...f, qualification: e.target.value }))}
+                  placeholder="e.g. PhD in CS"
+                  className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400"
+                />
+              </div>
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-600">Specialization</span>
+              <input
+                value={form.specialization}
+                onChange={(e) => setForm((f) => ({ ...f, specialization: e.target.value }))}
+                placeholder="e.g. Machine Learning"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-600">Experience (years)</span>
+              <div className="relative mt-1">
+                <FiBriefcase className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="number"
+                  min="0"
+                  value={form.experience}
+                  onChange={(e) => setForm((f) => ({ ...f, experience: e.target.value }))}
+                  className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-400"
+                />
+              </div>
+            </label>
+
+            <div className="sm:col-span-2">
+              <hr className="my-2 border-slate-100" />
+              <h3 className="mb-3 text-sm font-bold text-slate-900">Assignments</h3>
+            </div>
+
             <label className="block sm:col-span-2">
               <span className="text-xs font-semibold text-slate-600">Subjects (comma separated)</span>
               <textarea
-                rows={3}
+                rows={2}
                 value={form.subjects}
                 onChange={(e) => setForm((f) => ({ ...f, subjects: e.target.value }))}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/15"
               />
             </label>
           </div>
+
           <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
             <button
               type="button"

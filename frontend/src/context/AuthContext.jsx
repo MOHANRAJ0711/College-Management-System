@@ -17,6 +17,7 @@ export function AuthProvider({ children }) {
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
   }, []);
@@ -48,6 +49,7 @@ export function AuthProvider({ children }) {
           const userData = data?.user ?? data;
           setUser(userData);
           setToken(stored);
+          localStorage.setItem('user', JSON.stringify(userData));
         }
       } catch {
         if (!cancelled) {
@@ -70,15 +72,37 @@ export function AuthProvider({ children }) {
     const { data } = await api.post('/auth/login', { email, password });
     const { token: nextToken, user: nextUser } = data;
     localStorage.setItem(TOKEN_KEY, nextToken);
+    localStorage.setItem('user', JSON.stringify(nextUser));
     setToken(nextToken);
     setUser(nextUser);
     return { ...data, user: nextUser };
+  }, []);
+
+  const verifyOtp = useCallback(async (email, otp) => {
+    const { data } = await api.post('/auth/verify-otp', { email, otp });
+    const { token: nextToken, user: nextUser } = data;
+    localStorage.setItem(TOKEN_KEY, nextToken);
+    localStorage.setItem('user', JSON.stringify(nextUser));
+    setToken(nextToken);
+    setUser(nextUser);
+    return data;
+  }, []);
+
+  const forgotPassword = useCallback(async (email) => {
+    const { data } = await api.post('/auth/forgot-password', { email });
+    return data;
+  }, []);
+
+  const resetPassword = useCallback(async (token, password) => {
+    const { data } = await api.post(`/auth/reset-password/${token}`, { password });
+    return data;
   }, []);
 
   const register = useCallback(async (formData) => {
     const { data } = await api.post('/auth/register', formData);
     const { token: nextToken, user: nextUser } = data;
     localStorage.setItem(TOKEN_KEY, nextToken);
+    localStorage.setItem('user', JSON.stringify(nextUser));
     setToken(nextToken);
     setUser(nextUser);
     return data;
@@ -92,6 +116,7 @@ export function AuthProvider({ children }) {
     const { data } = await api.put('/auth/profile', payload);
     const nextUser = data?.user ?? data;
     setUser(nextUser);
+    localStorage.setItem('user', JSON.stringify(nextUser));
     return nextUser;
   }, []);
 
@@ -101,6 +126,15 @@ export function AuthProvider({ children }) {
     });
     const nextUser = data?.user ?? data;
     setUser(nextUser);
+    localStorage.setItem('user', JSON.stringify(nextUser));
+    return nextUser;
+  }, []);
+
+  const removeProfileImage = useCallback(async () => {
+    const { data } = await api.delete('/auth/profile-image');
+    const nextUser = data?.user ?? data;
+    setUser(nextUser);
+    localStorage.setItem('user', JSON.stringify(nextUser));
     return nextUser;
   }, []);
 
@@ -110,13 +144,17 @@ export function AuthProvider({ children }) {
       token,
       loading,
       login,
+      verifyOtp,
+      forgotPassword,
+      resetPassword,
       register,
       logout,
       updateProfile,
       updateProfileImage,
+      removeProfileImage,
       isAuthenticated: Boolean(token && user),
     }),
-    [user, token, loading, login, register, logout, updateProfile, updateProfileImage]
+    [user, token, loading, login, verifyOtp, forgotPassword, resetPassword, register, logout, updateProfile, updateProfileImage, removeProfileImage]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
