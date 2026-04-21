@@ -1,12 +1,11 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const { startTimetableNotifier } = require('./utils/timetableNotifier');
 
-dotenv.config();
-connectDB();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
@@ -72,8 +71,17 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  // Start timetable reminder cron job
-  startTimetableNotifier();
+
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    startTimetableNotifier();
+  });
+};
+
+startServer().catch((error) => {
+  console.error(`Server startup failed: ${error.message}`);
+  process.exit(1);
 });

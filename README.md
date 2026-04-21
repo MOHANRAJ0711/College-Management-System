@@ -144,6 +144,8 @@ Root Directory: .
 
 Do **not** set the root directory to `server`, because this repo uses `backend/` and `frontend/`.
 
+The repo is pinned to **Node 20.x** for Render. If Render previously detected a newer Node version, trigger a fresh deploy after pushing these changes so it rebuilds with the pinned runtime.
+
 ### Required environment variables on Render
 
 - `MONGODB_URI`

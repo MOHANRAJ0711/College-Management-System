@@ -4,12 +4,12 @@
   "version": "1.0.0",
   "description": "Render deployment entrypoint for the College Management System monorepo",
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   },
   "scripts": {
-    "install:backend": "npm install --include=dev --prefix backend",
-    "install:frontend": "npm install --include=dev --prefix frontend",
+    "install:backend": "npm ci --prefix backend",
+    "install:frontend": "npm ci --prefix frontend",
     "build": "npm run install:backend && npm run install:frontend && npm run build --prefix frontend",
-    "start": "npm start --prefix backend"
+    "start": "node backend/server.js"
   }
 }
